@@ -39,7 +39,8 @@ yargs(hideBin(process.argv))
                 <Text dimColor>{response.status.battery}</Text>
               </Box>
               <Text>
-                <Text dimColor>Device ID:</Text> {response.deviceId}
+                <Text dimColor>设备序列号：</Text>
+                {response.deviceId}
               </Text>
             </Box>
             <Box flexDirection="column">
@@ -201,7 +202,7 @@ yargs(hideBin(process.argv))
 
       const pngBase64 = png.toString('base64')
 
-      await pushImage({ image: pngBase64 })
+      await pushImage({ image: pngBase64, ditherType: 'NONE' })
     },
   )
   .demandCommand(1, '请指定命令')
