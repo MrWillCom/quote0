@@ -18,7 +18,7 @@ import sharp from 'sharp'
 yargs(hideBin(process.argv))
   .command(
     'status',
-    '检查设备状态',
+    'Check device status',
     yargs => yargs,
     async argv => {
       try {
@@ -32,6 +32,7 @@ yargs(hideBin(process.argv))
               borderStyle="single"
               {...inkPropsHelpers.border('bottom')}
               borderDimColor
+              paddingX={1}
             >
               <Box gap={1}>
                 <Text>{response.alias}</Text>
@@ -39,33 +40,33 @@ yargs(hideBin(process.argv))
                 <Text dimColor>{response.status.battery}</Text>
               </Box>
               <Text>
-                <Text dimColor>设备序列号：</Text>
+                <Text dimColor>Device ID: </Text>
                 {response.deviceId}
               </Text>
             </Box>
-            <Box flexDirection="column">
+            <Box flexDirection="column" paddingX={1}>
               <Box justifyContent="space-between" width="100%">
-                <Text dimColor>状态</Text>
+                <Text dimColor>Status</Text>
                 <Text>{response.status.current}</Text>
               </Box>
               <Box justifyContent="space-between" width="100%">
-                <Text dimColor>上次渲染</Text>
+                <Text dimColor>Last Render</Text>
                 <Text>{response.renderInfo.last}</Text>
               </Box>
               <Box justifyContent="space-between" width="100%">
-                <Text dimColor>下次渲染（电池）</Text>
+                <Text dimColor>Next Render (Battery)</Text>
                 <Text>{response.renderInfo.next.battery}</Text>
               </Box>
               <Box justifyContent="space-between" width="100%">
-                <Text dimColor>下次渲染（电源）</Text>
+                <Text dimColor>Next Render (Power)</Text>
                 <Text>{response.renderInfo.next.power}</Text>
               </Box>
               <Box justifyContent="space-between" width="100%">
-                <Text dimColor>当前图像</Text>
-                <Text>共 {response.renderInfo.current.image.length} 张</Text>
+                <Text dimColor>Current Images</Text>
+                <Text>{response.renderInfo.current.image.length}</Text>
               </Box>
               <Box justifyContent="space-between" width="100%">
-                <Text dimColor>版本</Text>
+                <Text dimColor>Version</Text>
                 <Text>
                   <Text dimColor>v</Text>
                   {response.status.version}
@@ -81,7 +82,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     'prepare',
-    '准备必要的资源，如字体',
+    'Download necessary resources',
     yargs => yargs,
     async argv => {
       const toDownload: { filename: string; url: string }[] = [
@@ -139,21 +140,28 @@ yargs(hideBin(process.argv))
               borderStyle="single"
               {...inkPropsHelpers.border('bottom')}
               borderDimColor
+              paddingX={1}
             >
-              <Text>正在下载…</Text>
+              <Text>Downloading…</Text>
               <Text dimColor>
                 {progresses.filter(p => p.done).length}/{toDownload.length}
               </Text>
             </Box>
-            {toDownload.map(({ filename }, i) => (
-              <Box justifyContent="space-between" key={i}>
-                <Text>
-                  {progresses[i]!.done ? <Text dimColor>✓</Text> : <Spinner />}{' '}
-                  {filename}
-                </Text>
-                <Text>{Math.round(progresses[i]!.percent * 100)}%</Text>
-              </Box>
-            ))}
+            <Box flexDirection="column" paddingX={1}>
+              {toDownload.map(({ filename }, i) => (
+                <Box justifyContent="space-between" key={i}>
+                  <Text>
+                    {progresses[i]!.done ? (
+                      <Text dimColor>✓</Text>
+                    ) : (
+                      <Spinner />
+                    )}{' '}
+                    {filename}
+                  </Text>
+                  <Text>{Math.round(progresses[i]!.percent * 100)}%</Text>
+                </Box>
+              ))}
+            </Box>
           </Box>
         )
       }
@@ -163,47 +171,104 @@ yargs(hideBin(process.argv))
   )
   .command(
     'serve',
-    '开始周期性渲染并推送至设备',
+    'Start periodically rendering and pushing images',
     yargs => yargs,
     async argv => {
-      const svg = await satori(
-        <div
-          style={{
-            width: hardcoded.quote0Width,
-            height: hardcoded.quote0Height,
-            color: 'black',
-            backgroundColor: 'white',
-            fontFamily: 'Departure Mono',
-            fontSize: '11px',
-            lineHeight: '12px',
-          }}
-        >
-          hello, world
-        </div>,
-        {
-          width: hardcoded.quote0Width,
-          height: hardcoded.quote0Height,
-          fonts: [
-            {
-              name: 'Departure Mono',
-              data: await fs.readFile(
-                path.join('cache/resources', 'DepartureMono-Regular.otf'),
-              ),
-              weight: 400,
-              style: 'normal',
-            },
-          ],
-        },
-      )
-      await fs.writeFile('cache/out.svg', svg)
+      const steps = [
+        'SVG Rendering',
+        'SVG Saving',
+        'PNG Conversion',
+        'PNG Saving',
+        'Base64 Encoding',
+        'Pushing to Device',
+      ]
 
-      const png = await sharp(Buffer.from(svg)).png().toBuffer()
-      await fs.writeFile('cache/out.png', png)
+      const Main = () => {
+        const [currentStep, setCurrentStep] = React.useState<number>(-1)
+        const addStep = () => {
+          setCurrentStep(prev => prev + 1)
+        }
 
-      const pngBase64 = png.toString('base64')
+        React.useEffect(() => {
+          ;(async () => {
+            addStep()
+            const svg = await satori(
+              <div
+                style={{
+                  width: hardcoded.quote0Width,
+                  height: hardcoded.quote0Height,
+                  color: 'black',
+                  backgroundColor: 'white',
+                  fontFamily: 'Departure Mono',
+                  fontSize: '11px',
+                  lineHeight: '12px',
+                }}
+              >
+                hello, world
+              </div>,
+              {
+                width: hardcoded.quote0Width,
+                height: hardcoded.quote0Height,
+                fonts: [
+                  {
+                    name: 'Departure Mono',
+                    data: await fs.readFile(
+                      path.join('cache/resources', 'DepartureMono-Regular.otf'),
+                    ),
+                    weight: 400,
+                    style: 'normal',
+                  },
+                ],
+              },
+            )
+            addStep()
+            await fs.writeFile('cache/out.svg', svg)
 
-      await pushImage({ image: pngBase64, ditherType: 'NONE' })
+            addStep()
+            const png = await sharp(Buffer.from(svg)).png().toBuffer()
+            addStep()
+            await fs.writeFile('cache/out.png', png)
+
+            addStep()
+            const pngBase64 = png.toString('base64')
+
+            addStep()
+            await pushImage({ image: pngBase64, ditherType: 'NONE' })
+
+            addStep()
+          })()
+        }, [])
+
+        return (
+          <Box flexDirection="column" borderStyle="round">
+            <Box
+              borderStyle="single"
+              {...inkPropsHelpers.border('bottom')}
+              borderDimColor
+              paddingX={1}
+            >
+              <Text>Progress</Text>
+            </Box>
+            <Box flexDirection="column" paddingX={1}>
+              {steps.map((step, i) => (
+                <Box key={i} justifyContent="space-between">
+                  <Text>
+                    {currentStep === i ? (
+                      <Spinner />
+                    ) : (
+                      <Text dimColor>{currentStep > i ? '✓' : ' '}</Text>
+                    )}{' '}
+                    {step}
+                  </Text>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        )
+      }
+
+      render(<Main />)
     },
   )
-  .demandCommand(1, '请指定命令')
+  .demandCommand(1, 'Please specify a command')
   .parse()
