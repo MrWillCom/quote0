@@ -4,6 +4,9 @@ const hardcoded = {
   quote0ApiKey: process.env.QUOTE0_API_KEY,
   quote0DeviceId: process.env.QUOTE0_DEVICEID,
   dotApiEndpoint: 'https://dot.mindreset.tech/api',
+  quote0Width: 296,
+  quote0Height: 152,
+
   composeApiUrl: (path: string) =>
     path.startsWith('/')
       ? hardcoded.dotApiEndpoint + path
