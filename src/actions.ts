@@ -1,6 +1,6 @@
 import hardcoded from './hardcoded.js'
 
-export const getDeviceStatus = async () => {
+export async function getDeviceStatus() {
   const response = (await hardcoded.fetchApi(
     `/authV2/open/device/${hardcoded.quote0DeviceId}/status`,
   )) as {
@@ -27,6 +27,15 @@ export const getDeviceStatus = async () => {
       }
     }
   }
+
+  return response
+}
+
+export async function pushImage(params: { image: string }) {
+  const response = (await hardcoded.fetchApi(
+    `/authV2/open/device/${hardcoded.quote0DeviceId}/image`,
+    { method: 'POST', body: JSON.stringify({ image: params.image }) },
+  )) as { code: number; message: string }
 
   return response
 }

@@ -4,13 +4,16 @@ import 'dotenv/config'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { Box, render, Text } from 'ink'
-import { getDeviceStatus } from './actions.js'
+import { getDeviceStatus, pushImage } from './actions.js'
 import { styles } from './helpers.js'
 import fs from 'node:fs/promises'
 import ky from 'ky'
 import path from 'node:path'
 import React from 'react'
 import Spinner from 'ink-spinner'
+import satori from 'satori'
+import hardcoded from './hardcoded.js'
+import sharp from 'sharp'
 
 yargs(hideBin(process.argv))
   .command(
@@ -159,10 +162,46 @@ yargs(hideBin(process.argv))
   )
   .command(
     'serve',
-    '开始定时渲染并推送至设备',
+    '开始周期性渲染并推送至设备',
     yargs => yargs,
     async argv => {
-      // TODO: render and push
+      const svg = await satori(
+        <div
+          style={{
+            width: hardcoded.quote0Width,
+            height: hardcoded.quote0Height,
+            color: 'black',
+            backgroundColor: 'white',
+            fontFamily: 'Departure Mono',
+            fontSize: '11px',
+            lineHeight: '12px',
+          }}
+        >
+          hello, world
+        </div>,
+        {
+          width: hardcoded.quote0Width,
+          height: hardcoded.quote0Height,
+          fonts: [
+            {
+              name: 'Departure Mono',
+              data: await fs.readFile(
+                path.join('cache/resources', 'DepartureMono-Regular.otf'),
+              ),
+              weight: 400,
+              style: 'normal',
+            },
+          ],
+        },
+      )
+      await fs.writeFile('cache/out.svg', svg)
+
+      const png = await sharp(Buffer.from(svg)).png().toBuffer()
+      await fs.writeFile('cache/out.png', png)
+
+      const pngBase64 = png.toString('base64')
+
+      await pushImage({ image: pngBase64 })
     },
   )
   .demandCommand(1, '请指定命令')
