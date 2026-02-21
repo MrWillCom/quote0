@@ -4,15 +4,15 @@ import 'dotenv/config'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { Box, render, Text } from 'ink'
-import { getDeviceStatus, pushImage } from './actions.js'
-import { styles } from './helpers.js'
+import { getDeviceStatus, pushImage } from './actions'
+import { inkPropsHelpers } from './utils'
 import fs from 'node:fs/promises'
 import ky from 'ky'
 import path from 'node:path'
 import React from 'react'
 import Spinner from 'ink-spinner'
 import satori from 'satori'
-import hardcoded from './hardcoded.js'
+import hardcoded from './hardcoded'
 import sharp from 'sharp'
 
 yargs(hideBin(process.argv))
@@ -30,7 +30,7 @@ yargs(hideBin(process.argv))
               justifyContent="space-between"
               width="100%"
               borderStyle="single"
-              {...styles.border('bottom')}
+              {...inkPropsHelpers.border('bottom')}
               borderDimColor
             >
               <Box gap={1}>
@@ -137,7 +137,7 @@ yargs(hideBin(process.argv))
             <Box
               justifyContent="space-between"
               borderStyle="single"
-              {...styles.border('bottom')}
+              {...inkPropsHelpers.border('bottom')}
               borderDimColor
             >
               <Text>正在下载…</Text>

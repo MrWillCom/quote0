@@ -1,4 +1,4 @@
-import hardcoded from './hardcoded.js'
+import hardcoded from './hardcoded'
 
 export async function getDeviceStatus() {
   const response = (await hardcoded.fetchApi(

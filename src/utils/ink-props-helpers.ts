@@ -1,4 +1,4 @@
-export const styles = {
+const inkPropsHelpers = {
   border: (...directions: ('top' | 'right' | 'bottom' | 'left')[]) => {
     return {
       borderTop: directions.includes('top'),
@@ -8,3 +8,5 @@ export const styles = {
     }
   },
 }
+
+export default inkPropsHelpers
