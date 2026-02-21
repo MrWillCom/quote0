@@ -21,6 +21,6 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "effect": "^3.19.18"
+    "dotenv": "^17.3.1"
   }
 }
