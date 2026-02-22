@@ -58,6 +58,58 @@ yargs(hideBin(process.argv))
     },
   )
   .command(
+    'list',
+    'List all devices',
+    yargs => yargs,
+    async argv => {
+      try {
+        const devices = await quote0.device.list()
+
+        const Main = () => (
+          <Container>
+            <SectionList>
+              <ListItem
+                trailing={
+                  <Text dimColor>
+                    {devices.length}/{devices.length}
+                  </Text>
+                }
+              >
+                <Text>Devices</Text>
+              </ListItem>
+              {...devices.length === 0
+                ? [
+                    <ListItem>
+                      <Text dimColor>No devices found</Text>
+                    </ListItem>,
+                  ]
+                : devices.map(device => (
+                    <Box flexDirection="column">
+                      <ListItem trailing={<Text>{device.id}</Text>}>
+                        <Text dimColor>ID</Text>
+                      </ListItem>
+                      <ListItem trailing={<Text>{device.series}</Text>}>
+                        <Text dimColor>Series</Text>
+                      </ListItem>
+                      <ListItem trailing={<Text>{device.model}</Text>}>
+                        <Text dimColor>Model</Text>
+                      </ListItem>
+                      <ListItem trailing={<Text>{device.edition}</Text>}>
+                        <Text dimColor>Edition</Text>
+                      </ListItem>
+                    </Box>
+                  ))}
+            </SectionList>
+          </Container>
+        )
+
+        render(<Main />)
+      } catch (error) {
+        console.error(error)
+      }
+    },
+  )
+  .command(
     'status',
     'Check device status',
     yargs => yargs,

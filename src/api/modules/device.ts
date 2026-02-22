@@ -2,7 +2,7 @@ import BaseClient from '../base'
 
 class DeviceModule extends BaseClient {
   async list() {
-    const response = (await this.fetchApi(`/api/authV2/open/devices`)) as {
+    const response = (await this.fetchApi(`/authV2/open/devices`)) as {
       id: string
       series: string
       model: string
