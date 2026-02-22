@@ -58,111 +58,128 @@ yargs(hideBin(process.argv))
     },
   )
   .command(
-    'list',
-    'List all devices',
-    yargs => yargs,
-    async argv => {
-      try {
-        const devices = await quote0.device.list()
+    'device',
+    'Manage devices',
+    yargs =>
+      yargs
+        .command(
+          'list',
+          'List all devices',
+          yargs => yargs,
+          async argv => {
+            try {
+              const devices = await quote0.device.list()
 
-        const Main = () => (
-          <Container>
-            <SectionList>
-              <ListItem
-                trailing={
-                  <Text dimColor>
-                    {devices.length}/{devices.length}
-                  </Text>
-                }
-              >
-                <Text>Devices</Text>
-              </ListItem>
-              {...devices.length === 0
-                ? [
-                    <ListItem>
-                      <Text dimColor>No devices found</Text>
-                    </ListItem>,
-                  ]
-                : devices.map(device => (
+              const Main = () => (
+                <Container>
+                  <SectionList>
+                    <ListItem
+                      trailing={
+                        <Text dimColor>
+                          {devices.length}/{devices.length}
+                        </Text>
+                      }
+                    >
+                      <Text>Devices</Text>
+                    </ListItem>
+                    {...devices.length === 0
+                      ? [
+                          <ListItem>
+                            <Text dimColor>No devices found</Text>
+                          </ListItem>,
+                        ]
+                      : devices.map(device => (
+                          <Box flexDirection="column">
+                            <ListItem trailing={<Text>{device.id}</Text>}>
+                              <Text dimColor>ID</Text>
+                            </ListItem>
+                            <ListItem trailing={<Text>{device.series}</Text>}>
+                              <Text dimColor>Series</Text>
+                            </ListItem>
+                            <ListItem trailing={<Text>{device.model}</Text>}>
+                              <Text dimColor>Model</Text>
+                            </ListItem>
+                            <ListItem trailing={<Text>{device.edition}</Text>}>
+                              <Text dimColor>Edition</Text>
+                            </ListItem>
+                          </Box>
+                        ))}
+                  </SectionList>
+                </Container>
+              )
+
+              render(<Main />)
+            } catch (error) {
+              console.error(error)
+            }
+          },
+        )
+        .command(
+          'status <device-id>',
+          'Check device status',
+          yargs =>
+            yargs.positional('device-id', {
+              describe: 'Device ID to check status for',
+              type: 'string',
+            }),
+          async argv => {
+            try {
+              const response = await quote0.device.status({
+                deviceId: argv.deviceId!,
+              })
+
+              render(
+                <Container>
+                  <SectionList>
+                    <ListItem
+                      trailing={
+                        <Text>
+                          <Text dimColor>Device ID: </Text>
+                          {response.deviceId}
+                        </Text>
+                      }
+                    >
+                      <Box gap={1}>
+                        <Text>{response.alias}</Text>
+                        <Text dimColor>{response.location}</Text>
+                        <Text dimColor>{response.status.battery}</Text>
+                      </Box>
+                    </ListItem>
                     <Box flexDirection="column">
-                      <ListItem trailing={<Text>{device.id}</Text>}>
-                        <Text dimColor>ID</Text>
-                      </ListItem>
-                      <ListItem trailing={<Text>{device.series}</Text>}>
-                        <Text dimColor>Series</Text>
-                      </ListItem>
-                      <ListItem trailing={<Text>{device.model}</Text>}>
-                        <Text dimColor>Model</Text>
-                      </ListItem>
-                      <ListItem trailing={<Text>{device.edition}</Text>}>
-                        <Text dimColor>Edition</Text>
-                      </ListItem>
+                      {...[
+                        ['Status', response.status.current],
+                        ['Last Render', response.renderInfo.last],
+                        [
+                          'Next Render (Battery)',
+                          response.renderInfo.next.battery,
+                        ],
+                        ['Next Render (Power)', response.renderInfo.next.power],
+                        [
+                          'Current Images',
+                          response.renderInfo.current.image.length,
+                        ],
+                        [
+                          'Version',
+                          <Text>
+                            <Text dimColor>v</Text>
+                            {response.status.version}
+                          </Text>,
+                        ],
+                      ].map(([k, v]) => (
+                        <ListItem trailing={<Text>{v}</Text>}>
+                          <Text dimColor>{k}</Text>
+                        </ListItem>
+                      ))}
                     </Box>
-                  ))}
-            </SectionList>
-          </Container>
-        )
-
-        render(<Main />)
-      } catch (error) {
-        console.error(error)
-      }
-    },
-  )
-  .command(
-    'status',
-    'Check device status',
-    yargs => yargs,
-    async argv => {
-      try {
-        const response = await quote0.device.status({
-          deviceId: 'ABCDABCDABCD',
-        })
-
-        render(
-          <Container>
-            <SectionList>
-              <ListItem
-                trailing={
-                  <Text>
-                    <Text dimColor>Device ID: </Text>
-                    {response.deviceId}
-                  </Text>
-                }
-              >
-                <Box gap={1}>
-                  <Text>{response.alias}</Text>
-                  <Text dimColor>{response.location}</Text>
-                  <Text dimColor>{response.status.battery}</Text>
-                </Box>
-              </ListItem>
-              <Box flexDirection="column">
-                {...[
-                  ['Status', response.status.current],
-                  ['Last Render', response.renderInfo.last],
-                  ['Next Render (Battery)', response.renderInfo.next.battery],
-                  ['Next Render (Power)', response.renderInfo.next.power],
-                  ['Current Images', response.renderInfo.current.image.length],
-                  [
-                    'Version',
-                    <Text>
-                      <Text dimColor>v</Text>
-                      {response.status.version}
-                    </Text>,
-                  ],
-                ].map(([k, v]) => (
-                  <ListItem trailing={<Text>{v}</Text>}>
-                    <Text dimColor>{k}</Text>
-                  </ListItem>
-                ))}
-              </Box>
-            </SectionList>
-          </Container>,
-        )
-      } catch (error) {
-        console.error(error)
-      }
-    },
+                  </SectionList>
+                </Container>,
+              )
+            } catch (error) {
+              console.error(error)
+            }
+          },
+        ),
+    async argv => {},
   )
   .command(
     'image',
@@ -188,4 +205,5 @@ yargs(hideBin(process.argv))
     },
   )
   .demandCommand(1, 'Please specify a command')
+  .strict()
   .parse()
