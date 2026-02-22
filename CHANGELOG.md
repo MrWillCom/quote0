@@ -1,5 +1,18 @@
 # quote0
 
+## 1.0.0-alpha.2
+
+### Major Changes
+
+- c37b8a1: Nest commands, `list` → `device list`, `status` → `device status`.
+
+### Minor Changes
+
+- 0be89b2: Add command `list`.
+- c37b8a1: Implement command `device status <device-id>`.
+- 1ac2358: Implement `.content.next()` method.
+- 1ac2358: Add command `content next` and move `image` → `content image`.
+
 ## 1.0.0-alpha.1
 
 ### Major Changes
