@@ -1,7 +1,7 @@
 {
   "name": "quote0",
   "version": "1.0.0-alpha.0",
-  "description": "Access your Quote/0 from the command line.",
+  "description": "TypeScript SDK and CLI for Quote/0.",
   "type": "module",
   "main": "dist/api/index.mjs",
   "scripts": {
