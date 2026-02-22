@@ -2,7 +2,7 @@
   "mode": "pre",
   "tag": "alpha",
   "initialVersions": {
-    "quote0": "1.0.0"
+    "quote0": "0.0.0"
   },
   "changesets": []
 }
