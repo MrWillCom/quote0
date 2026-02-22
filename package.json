@@ -1,7 +1,7 @@
 {
-  "name": "my-quote0",
+  "name": "quote0",
   "version": "0.1.0",
-  "description": "",
+  "description": "Access your Quote/0 from the command line.",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -10,9 +10,17 @@
     "start": "node dist/index.js",
     "format": "prettier . --write"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "quote0",
+    "e-ink",
+    "cli"
+  ],
+  "author": "Mr. Will (https://github.com/MrWillCom)",
   "license": "MIT",
+  "repository": "MrWillCom/quote0",
+  "bugs": {
+    "url": "https://github.com/MrWillCom/quote0/issues"
+  },
   "packageManager": "pnpm@10.30.1+sha512.3590e550d5384caa39bd5c7c739f72270234b2f6059e13018f975c313b1eb9fefcc09714048765d4d9efe961382c312e624572c0420762bdc5d5940cdf9be73a",
   "devDependencies": {
     "@types/node": "^25.3.0",
