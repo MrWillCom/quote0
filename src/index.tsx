@@ -4,16 +4,15 @@ import 'dotenv/config'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { Box, render, Text } from 'ink'
-import { getDeviceStatus, pushImage } from './actions'
-import { inkPropsHelpers } from './utils'
+import { getDeviceStatus } from './actions'
 import fs from 'node:fs/promises'
 import ky from 'ky'
 import path from 'node:path'
 import React from 'react'
 import Spinner from 'ink-spinner'
-import satori from 'satori'
-import hardcoded from './hardcoded'
-import sharp from 'sharp'
+import Container from './components/Container'
+import { SectionList } from './components/Section'
+import ListItem from './components/ListItem'
 
 yargs(hideBin(process.argv))
   .command(
@@ -25,55 +24,44 @@ yargs(hideBin(process.argv))
         const response = await getDeviceStatus()
 
         render(
-          <Box borderStyle="round" flexDirection="column">
-            <Box
-              justifyContent="space-between"
-              width="100%"
-              borderStyle="single"
-              {...inkPropsHelpers.border('bottom')}
-              borderDimColor
-              paddingX={1}
-            >
-              <Box gap={1}>
-                <Text>{response.alias}</Text>
-                <Text dimColor>{response.location}</Text>
-                <Text dimColor>{response.status.battery}</Text>
+          <Container>
+            <SectionList>
+              <ListItem
+                trailing={
+                  <Text>
+                    <Text dimColor>Device ID: </Text>
+                    {response.deviceId}
+                  </Text>
+                }
+              >
+                <Box gap={1}>
+                  <Text>{response.alias}</Text>
+                  <Text dimColor>{response.location}</Text>
+                  <Text dimColor>{response.status.battery}</Text>
+                </Box>
+              </ListItem>
+              <Box flexDirection="column">
+                {...[
+                  ['Status', response.status.current],
+                  ['Last Render', response.renderInfo.last],
+                  ['Next Render (Battery)', response.renderInfo.next.battery],
+                  ['Next Render (Power)', response.renderInfo.next.power],
+                  ['Current Images', response.renderInfo.current.image.length],
+                  [
+                    'Version',
+                    <Text>
+                      <Text dimColor>v</Text>
+                      {response.status.version}
+                    </Text>,
+                  ],
+                ].map(([k, v]) => (
+                  <ListItem trailing={<Text>{v}</Text>}>
+                    <Text dimColor>{k}</Text>
+                  </ListItem>
+                ))}
               </Box>
-              <Text>
-                <Text dimColor>Device ID: </Text>
-                {response.deviceId}
-              </Text>
-            </Box>
-            <Box flexDirection="column" paddingX={1}>
-              <Box justifyContent="space-between" width="100%">
-                <Text dimColor>Status</Text>
-                <Text>{response.status.current}</Text>
-              </Box>
-              <Box justifyContent="space-between" width="100%">
-                <Text dimColor>Last Render</Text>
-                <Text>{response.renderInfo.last}</Text>
-              </Box>
-              <Box justifyContent="space-between" width="100%">
-                <Text dimColor>Next Render (Battery)</Text>
-                <Text>{response.renderInfo.next.battery}</Text>
-              </Box>
-              <Box justifyContent="space-between" width="100%">
-                <Text dimColor>Next Render (Power)</Text>
-                <Text>{response.renderInfo.next.power}</Text>
-              </Box>
-              <Box justifyContent="space-between" width="100%">
-                <Text dimColor>Current Images</Text>
-                <Text>{response.renderInfo.current.image.length}</Text>
-              </Box>
-              <Box justifyContent="space-between" width="100%">
-                <Text dimColor>Version</Text>
-                <Text>
-                  <Text dimColor>v</Text>
-                  {response.status.version}
-                </Text>
-              </Box>
-            </Box>
-          </Box>,
+            </SectionList>
+          </Container>,
         )
       } catch (error) {
         console.error(error)
@@ -134,35 +122,44 @@ yargs(hideBin(process.argv))
         }, [])
 
         return (
-          <Box flexDirection="column" borderStyle="round">
-            <Box
-              justifyContent="space-between"
-              borderStyle="single"
-              {...inkPropsHelpers.border('bottom')}
-              borderDimColor
-              paddingX={1}
-            >
-              <Text>Downloading…</Text>
-              <Text dimColor>
-                {progresses.filter(p => p.done).length}/{toDownload.length}
-              </Text>
-            </Box>
-            <Box flexDirection="column" paddingX={1}>
-              {toDownload.map(({ filename }, i) => (
-                <Box justifyContent="space-between" key={i}>
-                  <Text>
-                    {progresses[i]!.done ? (
-                      <Text dimColor>✓</Text>
-                    ) : (
-                      <Spinner />
-                    )}{' '}
-                    {filename}
+          <Container>
+            <SectionList>
+              <ListItem
+                trailing={
+                  <Text dimColor>
+                    {progresses.filter(p => p.done).length}/{toDownload.length}
                   </Text>
-                  <Text>{Math.round(progresses[i]!.percent * 100)}%</Text>
-                </Box>
-              ))}
-            </Box>
-          </Box>
+                }
+              >
+                <Text>
+                  {progresses.filter(p => !p.done).length === 0
+                    ? 'Done'
+                    : 'Downloading…'}
+                </Text>
+              </ListItem>
+              <Box flexDirection="column">
+                {...toDownload.map(({ filename }, i) => (
+                  <ListItem
+                    key={i}
+                    leading={
+                      progresses[i]!.done ? (
+                        <Text dimColor>✓</Text>
+                      ) : (
+                        <Spinner />
+                      )
+                    }
+                    trailing={
+                      !progresses[i]!.done && (
+                        <Text>{Math.round(progresses[i]!.percent * 100)}%</Text>
+                      )
+                    }
+                  >
+                    <Text>{filename}</Text>
+                  </ListItem>
+                ))}
+              </Box>
+            </SectionList>
+          </Container>
         )
       }
 
@@ -170,100 +167,22 @@ yargs(hideBin(process.argv))
     },
   )
   .command(
-    'serve',
-    'Start periodically rendering and pushing images',
+    'image',
+    'Push an image to device',
     yargs => yargs,
     async argv => {
-      const steps = [
-        'SVG Rendering',
-        'SVG Saving',
-        'PNG Conversion',
-        'PNG Saving',
-        'Base64 Encoding',
-        'Pushing to Device',
-      ]
-
       const Main = () => {
-        const [currentStep, setCurrentStep] = React.useState<number>(-1)
-        const addStep = () => {
-          setCurrentStep(prev => prev + 1)
-        }
-
-        React.useEffect(() => {
-          ;(async () => {
-            addStep()
-            const svg = await satori(
-              <div
-                style={{
-                  width: hardcoded.quote0Width,
-                  height: hardcoded.quote0Height,
-                  color: 'black',
-                  backgroundColor: 'white',
-                  fontFamily: 'Departure Mono',
-                  fontSize: '11px',
-                  lineHeight: '12px',
-                }}
-              >
-                hello, world
-              </div>,
-              {
-                width: hardcoded.quote0Width,
-                height: hardcoded.quote0Height,
-                fonts: [
-                  {
-                    name: 'Departure Mono',
-                    data: await fs.readFile(
-                      path.join('cache/resources', 'DepartureMono-Regular.otf'),
-                    ),
-                    weight: 400,
-                    style: 'normal',
-                  },
-                ],
-              },
-            )
-            addStep()
-            await fs.writeFile('cache/out.svg', svg)
-
-            addStep()
-            const png = await sharp(Buffer.from(svg)).png().toBuffer()
-            addStep()
-            await fs.writeFile('cache/out.png', png)
-
-            addStep()
-            const pngBase64 = png.toString('base64')
-
-            addStep()
-            await pushImage({ image: pngBase64, ditherType: 'NONE' })
-
-            addStep()
-          })()
-        }, [])
-
         return (
-          <Box flexDirection="column" borderStyle="round">
-            <Box
-              borderStyle="single"
-              {...inkPropsHelpers.border('bottom')}
-              borderDimColor
-              paddingX={1}
-            >
-              <Text>Progress</Text>
-            </Box>
-            <Box flexDirection="column" paddingX={1}>
-              {steps.map((step, i) => (
-                <Box key={i} justifyContent="space-between">
-                  <Text>
-                    {currentStep === i ? (
-                      <Spinner />
-                    ) : (
-                      <Text dimColor>{currentStep > i ? '✓' : ' '}</Text>
-                    )}{' '}
-                    {step}
-                  </Text>
-                </Box>
-              ))}
-            </Box>
-          </Box>
+          <Container>
+            <SectionList>
+              <ListItem>
+                <Text>Progress</Text>
+              </ListItem>
+              <Box justifyContent="center" alignItems="center">
+                <Text dimColor>To be implemented</Text>
+              </Box>
+            </SectionList>
+          </Container>
         )
       }
 
