@@ -182,27 +182,57 @@ yargs(hideBin(process.argv))
     async argv => {},
   )
   .command(
-    'image',
-    'Push an image to device',
-    yargs => yargs,
-    async argv => {
-      const Main = () => {
-        return (
-          <Container>
-            <SectionList>
-              <ListItem>
-                <Text>Progress</Text>
-              </ListItem>
-              <Box justifyContent="center" alignItems="center">
-                <Text dimColor>To be implemented</Text>
-              </Box>
-            </SectionList>
-          </Container>
-        )
-      }
+    'content',
+    'Manage content',
+    yargs =>
+      yargs
+        .command(
+          'next <device-id>',
+          'Switch to next content',
+          yargs =>
+            yargs.positional('device-id', {
+              describe: 'Device ID to switch content for',
+              type: 'string',
+            }),
+          async argv => {
+            try {
+              const response = await quote0.content.next({
+                deviceId: argv.deviceId!,
+              })
 
-      render(<Main />)
-    },
+              render(
+                <Container>
+                  <SectionList>
+                    <Text>Next Content</Text>
+                    <Text>{response.message}</Text>
+                  </SectionList>
+                </Container>,
+              )
+            } catch (error) {
+              console.error(error)
+            }
+          },
+        )
+        .command(
+          'image',
+          'Push an image to device',
+          yargs => yargs,
+          async argv => {
+            const Main = () => {
+              return (
+                <Container>
+                  <SectionList>
+                    <Text>Progress</Text>
+                    <Text dimColor>To be implemented</Text>
+                  </SectionList>
+                </Container>
+              )
+            }
+
+            render(<Main />)
+          },
+        ),
+    async argv => {},
   )
   .demandCommand(1, 'Please specify a command')
   .strict()

@@ -1,6 +1,17 @@
 import BaseClient from '../base'
 
 class ContentModule extends BaseClient {
+  async next({ deviceId }: { deviceId: string }) {
+    const response = (await this.fetchApi(
+      `/authV2/open/device/${deviceId}/next`,
+      {
+        method: 'POST',
+      },
+    )) as { code: number; message: string }
+
+    return response
+  }
+
   async pushImage(
     { deviceId }: { deviceId: string },
     options: {
