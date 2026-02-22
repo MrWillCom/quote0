@@ -1,6 +1,6 @@
 {
   "name": "quote0",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "TypeScript SDK and CLI for Quote/0.",
   "type": "module",
   "main": "dist/api/index.mjs",
