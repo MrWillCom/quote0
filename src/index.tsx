@@ -5,11 +5,6 @@ import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { Box, render, Text } from 'ink'
 import { getDeviceStatus } from './actions'
-import fs from 'node:fs/promises'
-import ky from 'ky'
-import path from 'node:path'
-import React from 'react'
-import Spinner from 'ink-spinner'
 import Container from './components/Container'
 import { SectionList } from './components/Section'
 import ListItem from './components/ListItem'
@@ -67,104 +62,6 @@ yargs(hideBin(process.argv))
       } catch (error) {
         console.error(error)
       }
-    },
-  )
-  .command(
-    'prepare',
-    'Download necessary resources',
-    yargs => yargs,
-    async argv => {
-      const toDownload: { filename: string; url: string }[] = [
-        {
-          filename: 'DepartureMono-Regular.otf',
-          url: 'https://departuremono.com/assets/DepartureMono-Regular.otf',
-        },
-      ]
-
-      await fs.mkdir('cache/resources', { recursive: true })
-
-      const Main = () => {
-        const [progresses, setProgresses] = React.useState<
-          {
-            percent: number
-            done: boolean
-          }[]
-        >(toDownload.map(() => ({ percent: 0, done: false })))
-
-        React.useEffect(() => {
-          ;(async () => {
-            await Promise.all(
-              toDownload.map(async ({ filename, url }, i) => {
-                const buffer = await ky
-                  .get(url, {
-                    onDownloadProgress: progress => {
-                      setProgresses(prev => {
-                        const t = [...prev]
-                        t[i]!.percent = progress.percent
-                        return t
-                      })
-                    },
-                  })
-                  .bytes()
-
-                await fs.writeFile(
-                  path.join('cache/resources', filename),
-                  buffer,
-                )
-
-                setProgresses(prev => {
-                  const t = [...prev]
-                  t[i]!.done = true
-                  return t
-                })
-              }),
-            )
-          })()
-        }, [])
-
-        return (
-          <Container>
-            <SectionList>
-              <ListItem
-                trailing={
-                  <Text dimColor>
-                    {progresses.filter(p => p.done).length}/{toDownload.length}
-                  </Text>
-                }
-              >
-                <Text>
-                  {progresses.filter(p => !p.done).length === 0
-                    ? 'Done'
-                    : 'Downloading…'}
-                </Text>
-              </ListItem>
-              <Box flexDirection="column">
-                {...toDownload.map(({ filename }, i) => (
-                  <ListItem
-                    key={i}
-                    leading={
-                      progresses[i]!.done ? (
-                        <Text dimColor>✓</Text>
-                      ) : (
-                        <Spinner />
-                      )
-                    }
-                    trailing={
-                      !progresses[i]!.done && (
-                        <Text>{Math.round(progresses[i]!.percent * 100)}%</Text>
-                      )
-                    }
-                  >
-                    <Text>{filename}</Text>
-                  </ListItem>
-                ))}
-              </Box>
-            </SectionList>
-          </Container>
-        )
-      }
-
-      render(<Main />)
     },
   )
   .command(
