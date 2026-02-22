@@ -1,23 +1,71 @@
 #!/usr/bin/env node
 
-import 'dotenv/config'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { Box, render, Text } from 'ink'
-import { getDeviceStatus } from './actions'
+import Quote0 from './api'
 import Container from './components/Container'
 import { SectionList } from './components/Section'
 import ListItem from './components/ListItem'
+import { UncontrolledTextInput } from 'ink-text-input'
+import config from './config'
+import React from 'react'
+
+const quote0 = new Quote0({
+  apiKey: config.get('apiKey', ''),
+})
 
 yargs(hideBin(process.argv))
   .scriptName('quote0')
+  .command(
+    'auth',
+    'Enter and save API key',
+    yargs => yargs,
+    async argv => {
+      const Main = () => {
+        const [submitted, setSubmitted] = React.useState(false)
+
+        return (
+          <Container>
+            <SectionList>
+              <ListItem>
+                <Text>Authentication</Text>
+              </ListItem>
+              {!submitted ? (
+                <UncontrolledTextInput
+                  initialValue={config.get('apiKey', '')}
+                  onSubmit={v => {
+                    if (v.length === 0) {
+                      config.delete('apiKey')
+                      setSubmitted(true)
+                    } else {
+                      config.set('apiKey', v)
+                      setSubmitted(true)
+                    }
+                  }}
+                  placeholder="API key…"
+                  mask="*"
+                />
+              ) : (
+                <Text dimColor>API key saved</Text>
+              )}
+            </SectionList>
+          </Container>
+        )
+      }
+
+      render(<Main />)
+    },
+  )
   .command(
     'status',
     'Check device status',
     yargs => yargs,
     async argv => {
       try {
-        const response = await getDeviceStatus()
+        const response = await quote0.device.status({
+          deviceId: 'ABCDABCDABCD',
+        })
 
         render(
           <Container>
