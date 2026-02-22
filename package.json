@@ -14,6 +14,9 @@
   "files": [
     "dist"
   ],
+  "bin": {
+    "quote0": "dist/index.mjs"
+  },
   "keywords": [
     "quote0",
     "e-ink",

@@ -15,6 +15,7 @@ import { SectionList } from './components/Section'
 import ListItem from './components/ListItem'
 
 yargs(hideBin(process.argv))
+  .scriptName('quote0')
   .command(
     'status',
     'Check device status',
