@@ -5,7 +5,6 @@ node_modules/
 !.env.example
 
 /dist
-/cache
 
 .DS_Store
 

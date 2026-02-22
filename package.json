@@ -3,7 +3,7 @@
   "version": "1.0.0-alpha.0",
   "description": "Access your Quote/0 from the command line.",
   "type": "module",
-  "main": "dist/index.mjs",
+  "main": "dist/api/index.mjs",
   "scripts": {
     "build": "tsc --noEmit && tsdown",
     "dev": "tsx src/index.tsx",

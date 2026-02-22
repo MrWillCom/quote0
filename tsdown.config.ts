@@ -1,10 +1,10 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  entry: ['src/index.tsx'],
+  entry: ['src/index.tsx', 'src/api/index.ts'],
   format: ['esm'],
   clean: true,
   minify: true,
-  dts: false,
+  dts: true,
   target: false,
 })
