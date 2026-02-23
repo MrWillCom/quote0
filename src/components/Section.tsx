@@ -22,13 +22,9 @@ function Section({
 
 function SectionList({ children }: { children: React.ReactNode }) {
   const arrayChildren = React.Children.toArray(children)
-  return (
-    <>
-      {...arrayChildren.map((child, i) => (
-        <Section isLast={i === arrayChildren.length - 1}>{child}</Section>
-      ))}
-    </>
-  )
+  return React.Children.map(arrayChildren, (child, i) => (
+    <Section isLast={i === arrayChildren.length - 1}>{child}</Section>
+  ))
 }
 
 export { Section, SectionList }
