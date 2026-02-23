@@ -1,5 +1,15 @@
 # quote0
 
+## 1.0.0-alpha.4
+
+### Minor Changes
+
+- 3270f6d: Add push image functionality to CLI.
+
+### Patch Changes
+
+- eeb7e5c: Fix unexpected React missing `key` problem.
+
 ## 1.0.0-alpha.3
 
 ### Patch Changes
