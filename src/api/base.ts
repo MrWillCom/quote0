@@ -3,7 +3,7 @@ export interface BaseClientArgs {
 }
 
 class BaseClient {
-  apiKey: string
+  protected apiKey: string
   constructor({ apiKey }: BaseClientArgs) {
     this.apiKey = apiKey
   }
@@ -12,7 +12,6 @@ class BaseClient {
   protected readonly apiEndpoint = BaseClient.API_ENDPOINT
 
   static readonly DISPLAY = { width: 296, height: 152 }
-  readonly display = BaseClient.DISPLAY
 
   protected composeApiUrl(path: string) {
     return path.startsWith('/')

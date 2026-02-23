@@ -12,6 +12,8 @@ class Quote0 extends BaseClient {
     this.device = new DeviceModule(args)
     this.content = new ContentModule(args)
   }
+
+  readonly display = BaseClient.DISPLAY
 }
 
 export default Quote0
