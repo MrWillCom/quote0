@@ -1,5 +1,11 @@
 # quote0
 
+## 1.0.0-alpha.3
+
+### Patch Changes
+
+- ee4e038: Protect `.apiKey` and allow access to `.display` only from instance root.
+
 ## 1.0.0-alpha.2
 
 ### Major Changes
