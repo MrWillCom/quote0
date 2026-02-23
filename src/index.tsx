@@ -10,6 +10,7 @@ import ListItem from './components/ListItem'
 import { UncontrolledTextInput } from 'ink-text-input'
 import config from './config'
 import React from 'react'
+import fs from 'node:fs/promises'
 
 const quote0 = new Quote0({
   apiKey: config.get('apiKey', ''),
@@ -214,16 +215,37 @@ yargs(hideBin(process.argv))
           },
         )
         .command(
-          'image',
+          'image <device-id>',
           'Push an image to device',
-          yargs => yargs,
+          yargs =>
+            yargs
+              .positional('device-id', {
+                describe: 'Device ID to push image to',
+                type: 'string',
+              })
+              .option('f', {
+                alias: 'file',
+                describe: 'Path to image file',
+                type: 'string',
+                demandOption: true,
+              }),
           async argv => {
+            const file = await fs.readFile(argv.f)
+            const base64 = file.toString('base64')
+
+            const response = await quote0.content.pushImage(
+              { deviceId: argv.deviceId! },
+              { image: base64 },
+            )
+
             const Main = () => {
               return (
                 <Container>
                   <SectionList>
-                    <Text>Progress</Text>
-                    <Text dimColor>To be implemented</Text>
+                    <Text>Push Image</Text>
+                    <ListItem>
+                      <Text>{response.message}</Text>
+                    </ListItem>
                   </SectionList>
                 </Container>
               )
