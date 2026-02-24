@@ -1,5 +1,7 @@
 # Quote/0 SDK & CLI
 
+[![pkg.pr.new](https://pkg.pr.new/badge/MrWillCom/quote0)](https://pkg.pr.new/~/MrWillCom/quote0)
+
 TypeScript SDK and CLI for Quote/0.
 
 > [!CAUTION]
