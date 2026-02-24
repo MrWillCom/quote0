@@ -149,6 +149,8 @@ yargs(hideBin(process.argv))
                     <Box flexDirection="column">
                       {...[
                         ['Status', response.status.current],
+                        ['Battery', response.status.battery],
+                        ['Wi-Fi', response.status.wifi],
                         ['Last Render', response.renderInfo.last],
                         [
                           'Next Render (Battery)',
