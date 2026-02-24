@@ -1,5 +1,18 @@
 # quote0
 
+## 1.0.0-alpha.5
+
+### Minor Changes
+
+- ae78b5d: Add battery and Wi-Fi info to device status in CLI.
+- 5ccc3e4: Complete options for pushing images in CLI.
+- 26c9eb5: Add [Continuous Releases](https://pkg.pr.new/).
+
+### Patch Changes
+
+- 283f0c8: Change `main` to `exports` in package.json.
+- b7f0bf8: Disallow parent command without child command in CLI.
+
 ## 1.0.0-alpha.4
 
 ### Minor Changes
