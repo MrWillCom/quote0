@@ -230,6 +230,46 @@ yargs(hideBin(process.argv))
                 describe: 'Path to image file',
                 type: 'string',
                 demandOption: true,
+              })
+              .option('refresh-now', {
+                describe: 'Whether to refresh the device immediately',
+                type: 'boolean',
+              })
+              .option('link', {
+                describe: 'Optional link to open when image is tapped',
+                type: 'string',
+              })
+              .option('border', {
+                describe: 'Whether to add a border around the image',
+                type: 'number',
+                // TODO: manually listing choices is not practical, we need type exports from sdk
+                choices: [0, 1],
+              })
+              .option('dither-type', {
+                describe: 'Dithering algorithm to use',
+                type: 'string',
+                choices: ['DIFFUSION', 'ORDERED', 'NONE'],
+              })
+              .option('dither-kernel', {
+                describe:
+                  'Dithering kernel to use (if dither-type is DIFFUSION)',
+                type: 'string',
+                choices: [
+                  'THRESHOLD',
+                  'ATKINSON',
+                  'BURKES',
+                  'FLOYD_STEINBERG',
+                  'SIERRA2',
+                  'STUCKI',
+                  'JARVIS_JUDICE_NINKE',
+                  'DIFFUSION_ROW',
+                  'DIFFUSION_COLUMN',
+                  'DIFFUSION_2D',
+                ],
+              })
+              .option('task-key', {
+                describe: 'Optional task key to track rendering status',
+                type: 'string',
               }),
           async argv => {
             const file = await fs.readFile(argv.f)
@@ -237,7 +277,20 @@ yargs(hideBin(process.argv))
 
             const response = await quote0.content.pushImage(
               { deviceId: argv.deviceId! },
-              { image: base64 },
+              {
+                image: base64,
+                refreshNow: argv.refreshNow,
+                link: argv.link,
+                // choices are limited but yargs cannot narrow the type
+                // so let's fuck typescript
+                // @ts-expect-error
+                border: argv.border,
+                // @ts-expect-error
+                ditherType: argv.ditherType,
+                // @ts-expect-error
+                ditherKernel: argv.ditherKernel,
+                taskKey: argv.taskKey,
+              },
             )
 
             const Main = () => {
