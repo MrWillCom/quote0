@@ -1,5 +1,25 @@
 import BaseClient from '../base'
 
+export const BORDER = [0, 1] as const
+export type Border = (typeof BORDER)[number]
+
+export const DITHER_TYPES = ['DIFFUSION', 'ORDERED', 'NONE'] as const
+export type DitherType = (typeof DITHER_TYPES)[number]
+
+export const DITHER_KERNELS = [
+  'THRESHOLD',
+  'ATKINSON',
+  'BURKES',
+  'FLOYD_STEINBERG',
+  'SIERRA2',
+  'STUCKI',
+  'JARVIS_JUDICE_NINKE',
+  'DIFFUSION_ROW',
+  'DIFFUSION_COLUMN',
+  'DIFFUSION_2D',
+] as const
+export type DitherKernel = (typeof DITHER_KERNELS)[number]
+
 class ContentModule extends BaseClient {
   async next({ deviceId }: { deviceId: string }) {
     const response = (await this.fetchApi(
@@ -18,19 +38,9 @@ class ContentModule extends BaseClient {
       refreshNow?: boolean
       image: string
       link?: string
-      border?: 0 | 1
-      ditherType?: 'DIFFUSION' | 'ORDERED' | 'NONE'
-      ditherKernel?:
-        | 'THRESHOLD'
-        | 'ATKINSON'
-        | 'BURKES'
-        | 'FLOYD_STEINBERG'
-        | 'SIERRA2'
-        | 'STUCKI'
-        | 'JARVIS_JUDICE_NINKE'
-        | 'DIFFUSION_ROW'
-        | 'DIFFUSION_COLUMN'
-        | 'DIFFUSION_2D'
+      border?: Border
+      ditherType?: DitherType
+      ditherKernel?: DitherKernel
       taskKey?: string
     },
   ) {
