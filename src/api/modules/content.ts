@@ -20,6 +20,9 @@ export const DITHER_KERNELS = [
 ] as const
 export type DitherKernel = (typeof DITHER_KERNELS)[number]
 
+export const TASK_TYPES = ['fixed', 'loop'] as const
+export type TaskType = (typeof TASK_TYPES)[number]
+
 class ContentModule extends BaseClient {
   async next({ deviceId }: { deviceId: string }) {
     const response = (await this.fetchApi(
@@ -28,6 +31,27 @@ class ContentModule extends BaseClient {
         method: 'POST',
       },
     )) as { code: number; message: string }
+
+    return response
+  }
+
+  async list({ deviceId, taskType }: { deviceId: string; taskType: TaskType }) {
+    const response = (await this.fetchApi(
+      `/api/authV2/open/device/${deviceId}/${taskType}/list`,
+    )) as {
+      type: 'TEXT_API' | 'IMAGE_API' | 'GENERAL'
+      key: string | null
+      refreshNow?: boolean
+      title?: string
+      message?: string
+      signature?: string
+      icon?: string
+      link?: string
+      image?: string
+      border?: Border
+      ditherType?: string
+      ditherKernel?: string
+    }
 
     return response
   }
