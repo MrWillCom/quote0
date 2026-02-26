@@ -17,3 +17,12 @@ class Quote0 extends BaseClient {
 }
 
 export default Quote0
+
+export {
+  BORDER,
+  DITHER_TYPES,
+  DITHER_KERNELS,
+  type Border,
+  type DitherType,
+  type DitherKernel,
+} from './modules/content'

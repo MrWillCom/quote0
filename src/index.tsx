@@ -3,7 +3,7 @@
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 import { Box, render, Text } from 'ink'
-import Quote0 from './api'
+import Quote0, { BORDER, DITHER_TYPES, DITHER_KERNELS } from './api'
 import Container from './components/Container'
 import { SectionList } from './components/Section'
 import ListItem from './components/ListItem'
@@ -11,7 +11,6 @@ import { UncontrolledTextInput } from 'ink-text-input'
 import config from './config'
 import React from 'react'
 import fs from 'node:fs/promises'
-import { BORDER, DITHER_KERNELS, DITHER_TYPES } from './api/modules/content'
 
 const quote0 = new Quote0({
   apiKey: config.get('apiKey', ''),
