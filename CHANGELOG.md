@@ -1,5 +1,13 @@
 # quote0
 
+## 1.0.0-alpha.6
+
+### Minor Changes
+
+- 3279edc: Add `content.list` method and `TASK_TYPES` to content module API.
+- 575eedc: Re-export content module types and constants (`Border`, `DitherType`, `DitherKernel`, `BORDER`, `DITHER_TYPES`, `DITHER_KERNELS`) from the API entry point.
+- 3f8a047: Add `pushText` method to ContentModule for pushing text content to devices.
+
 ## 1.0.0-alpha.5
 
 ### Minor Changes
