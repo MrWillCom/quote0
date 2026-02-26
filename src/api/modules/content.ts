@@ -56,6 +56,26 @@ class ContentModule extends BaseClient {
     return response
   }
 
+  async pushText(
+    { deviceId }: { deviceId: string },
+    options: {
+      refreshNow?: boolean
+      title?: string
+      message?: string
+      signature?: string
+      icon?: string
+      link?: string
+      taskKey?: string
+    },
+  ) {
+    const response = (await this.fetchApi(
+      `/api/authV2/open/device/${deviceId}/text`,
+      { method: 'POST', body: JSON.stringify(options) },
+    )) as { code: number; message: string }
+
+    return response
+  }
+
   async pushImage(
     { deviceId }: { deviceId: string },
     options: {
