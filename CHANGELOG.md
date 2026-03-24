@@ -1,5 +1,12 @@
 # quote0
 
+## 1.0.0-alpha.7
+
+### Patch Changes
+
+- 764d68d: Migrate from Prettier to Oxfmt for code formatting.
+- 764d68d: Upgrade dependencies. TypeScript is updated from 5.x to 6.0.
+
 ## 1.0.0-alpha.6
 
 ### Minor Changes
