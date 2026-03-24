@@ -2,6 +2,23 @@
   "name": "quote0",
   "version": "1.0.0-alpha.6",
   "description": "TypeScript SDK and CLI for Quote/0.",
+  "keywords": [
+    "cli",
+    "e-ink",
+    "quote0"
+  ],
+  "bugs": {
+    "url": "https://github.com/MrWillCom/quote0/issues"
+  },
+  "license": "MIT",
+  "author": "Mr. Will (https://github.com/MrWillCom)",
+  "repository": "MrWillCom/quote0",
+  "bin": {
+    "quote0": "dist/index.mjs"
+  },
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "exports": {
     ".": "./dist/api/index.mjs"
@@ -10,36 +27,9 @@
     "build": "tsc --noEmit && tsdown",
     "dev": "tsx src/index.tsx",
     "start": "node dist/index.mjs",
-    "format": "prettier . --write",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "changeset": "changeset"
-  },
-  "files": [
-    "dist"
-  ],
-  "bin": {
-    "quote0": "dist/index.mjs"
-  },
-  "keywords": [
-    "quote0",
-    "e-ink",
-    "cli"
-  ],
-  "author": "Mr. Will (https://github.com/MrWillCom)",
-  "license": "MIT",
-  "repository": "MrWillCom/quote0",
-  "bugs": {
-    "url": "https://github.com/MrWillCom/quote0/issues"
-  },
-  "packageManager": "pnpm@10.30.1+sha512.3590e550d5384caa39bd5c7c739f72270234b2f6059e13018f975c313b1eb9fefcc09714048765d4d9efe961382c312e624572c0420762bdc5d5940cdf9be73a",
-  "devDependencies": {
-    "@changesets/cli": "^2.29.8",
-    "@types/node": "^25.3.0",
-    "@types/react": "^19.2.14",
-    "@types/yargs": "^17.0.35",
-    "prettier": "3.8.1",
-    "tsdown": "^0.20.3",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
   },
   "dependencies": {
     "conf": "^15.1.0",
@@ -49,5 +39,16 @@
     "react": "^19.2.4",
     "yaml": "^2.8.2",
     "yargs": "^18.0.0"
-  }
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.8",
+    "@types/node": "^25.3.0",
+    "@types/react": "^19.2.14",
+    "@types/yargs": "^17.0.35",
+    "oxfmt": "^0.42.0",
+    "tsdown": "^0.20.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "pnpm@10.30.1+sha512.3590e550d5384caa39bd5c7c739f72270234b2f6059e13018f975c313b1eb9fefcc09714048765d4d9efe961382c312e624572c0420762bdc5d5940cdf9be73a"
 }

@@ -2,10 +2,7 @@ import { Box } from 'ink'
 import { inkPropsHelpers } from '../utils'
 import React from 'react'
 
-function Section({
-  isLast,
-  ...props
-}: React.ComponentProps<typeof Box> & { isLast?: boolean }) {
+function Section({ isLast, ...props }: React.ComponentProps<typeof Box> & { isLast?: boolean }) {
   return (
     <Box
       {...(isLast !== true && {

@@ -14,9 +14,7 @@ class BaseClient {
   static readonly DISPLAY = { width: 296, height: 152 }
 
   protected composeApiUrl(path: string) {
-    return path.startsWith('/')
-      ? this.apiEndpoint + path
-      : this.apiEndpoint + '/' + path
+    return path.startsWith('/') ? this.apiEndpoint + path : this.apiEndpoint + '/' + path
   }
 
   protected async fetchApi(path: string, options?: RequestInit) {
@@ -38,9 +36,7 @@ class BaseClient {
       if (response.ok) {
         return await response.json()
       } else {
-        throw new Error(
-          `API request failed with status ${response.status}: ${response.statusText}`,
-        )
+        throw new Error(`API request failed with status ${response.status}: ${response.statusText}`)
       }
     } catch (error) {
       throw error

@@ -25,12 +25,9 @@ export type TaskType = (typeof TASK_TYPES)[number]
 
 class ContentModule extends BaseClient {
   async next({ deviceId }: { deviceId: string }) {
-    const response = (await this.fetchApi(
-      `/authV2/open/device/${deviceId}/next`,
-      {
-        method: 'POST',
-      },
-    )) as { code: number; message: string }
+    const response = (await this.fetchApi(`/authV2/open/device/${deviceId}/next`, {
+      method: 'POST',
+    })) as { code: number; message: string }
 
     return response
   }
@@ -68,10 +65,10 @@ class ContentModule extends BaseClient {
       taskKey?: string
     },
   ) {
-    const response = (await this.fetchApi(
-      `/api/authV2/open/device/${deviceId}/text`,
-      { method: 'POST', body: JSON.stringify(options) },
-    )) as { code: number; message: string }
+    const response = (await this.fetchApi(`/api/authV2/open/device/${deviceId}/text`, {
+      method: 'POST',
+      body: JSON.stringify(options),
+    })) as { code: number; message: string }
 
     return response
   }
@@ -88,10 +85,10 @@ class ContentModule extends BaseClient {
       taskKey?: string
     },
   ) {
-    const response = (await this.fetchApi(
-      `/authV2/open/device/${deviceId}/image`,
-      { method: 'POST', body: JSON.stringify(options) },
-    )) as { code: number; message: string }
+    const response = (await this.fetchApi(`/authV2/open/device/${deviceId}/image`, {
+      method: 'POST',
+      body: JSON.stringify(options),
+    })) as { code: number; message: string }
 
     return response
   }

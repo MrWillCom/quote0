@@ -13,9 +13,7 @@ class DeviceModule extends BaseClient {
   }
 
   async status({ deviceId }: { deviceId: string }) {
-    const response = (await this.fetchApi(
-      `/authV2/open/device/${deviceId}/status`,
-    )) as {
+    const response = (await this.fetchApi(`/authV2/open/device/${deviceId}/status`)) as {
       deviceId: string
       alias: string | null
       location: string | null

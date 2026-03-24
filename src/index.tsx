@@ -150,15 +150,9 @@ yargs(hideBin(process.argv))
                       ['Battery', response.status.battery],
                       ['Wi-Fi', response.status.wifi],
                       ['Last Render', response.renderInfo.last],
-                      [
-                        'Next Render (Battery)',
-                        response.renderInfo.next.battery,
-                      ],
+                      ['Next Render (Battery)', response.renderInfo.next.battery],
                       ['Next Render (Power)', response.renderInfo.next.power],
-                      [
-                        'Current Images',
-                        response.renderInfo.current.image.length,
-                      ],
+                      ['Current Images', response.renderInfo.current.image.length],
                       [
                         'Version',
                         <Text>
