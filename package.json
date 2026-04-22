@@ -32,18 +32,17 @@
     "changeset": "changeset"
   },
   "dependencies": {
+    "cac": "^7.0.0",
     "conf": "^15.1.0",
     "ink": "^7.0.1",
     "ink-text-input": "^6.0.0",
     "react": "^19.2.5",
-    "yaml": "^2.8.3",
-    "yargs": "^18.0.0"
+    "yaml": "^2.8.3"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
-    "@types/yargs": "^17.0.35",
     "oxfmt": "^0.46.0",
     "tsdown": "^0.21.9",
     "tsx": "^4.21.0",
