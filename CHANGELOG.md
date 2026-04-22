@@ -1,5 +1,11 @@
 # quote0
 
+## 1.0.0-alpha.8
+
+### Minor Changes
+
+- df60417: Refactor CLI from yargs to cac with modular architecture and improved error handling.
+
 ## 1.0.0-alpha.7
 
 ### Patch Changes
