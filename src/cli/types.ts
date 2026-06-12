@@ -25,10 +25,16 @@ export interface ContentNextResult {
   }
 }
 
+export interface ContentTextResult {
+  type: 'content-text'
+  response: {
+    message: string
+  }
+}
+
 export interface ContentImageResult {
   type: 'content-image'
   response: {
-    code: number
     message: string
   }
   file: string
@@ -43,5 +49,6 @@ export type CliResult =
   | DeviceListResult
   | DeviceStatusResult
   | ContentNextResult
+  | ContentTextResult
   | ContentImageResult
   | TimezoneListResult

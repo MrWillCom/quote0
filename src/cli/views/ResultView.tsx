@@ -118,6 +118,19 @@ export function ResultView({ result }: { result: CliResult }) {
     )
   }
 
+  if (result.type === 'content-text') {
+    return (
+      <Container>
+        <SectionList>
+          <Text>Push Text</Text>
+          <ListItem>
+            <Text>{result.response.message}</Text>
+          </ListItem>
+        </SectionList>
+      </Container>
+    )
+  }
+
   if (result.type === 'timezone-list') {
     return (
       <Container>

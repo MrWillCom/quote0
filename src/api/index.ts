@@ -25,8 +25,13 @@ export {
   BORDER,
   DITHER_TYPES,
   DITHER_KERNELS,
+  TEXT_API_FONT_FAMILIES,
   type Border,
   type DitherType,
   type DitherKernel,
+  type TextApiFontFamily,
+  type TextStyle,
+  type MessageTextStyle,
+  type TextStyles,
 } from './modules/content'
 export { type Timezone } from './modules/timezone'
