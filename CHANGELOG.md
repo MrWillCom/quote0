@@ -1,5 +1,19 @@
 # quote0
 
+## 1.0.0-alpha.8
+
+### Minor Changes
+
+- 0bc960b: Add `quote0 content text` CLI command for pushing text content to devices.
+- 0bc960b: Add `taskAlias` support to `ContentModule.pushImage()`.
+- df60417: Refactor CLI from yargs to cac with modular architecture and improved error handling.
+- 0bc960b: Add `taskAlias` and `styles` support to `ContentModule.pushText()`, and export text API font family constants.
+- 0bb7b20: Add `TimezoneModule` with `list()` for fetching supported timezones (`GET /authV2/open/timezones`), and expose `quote0 timezone list` CLI command.
+
+### Patch Changes
+
+- 0bc960b: Fix content API path duplication and correct Text/Image API response types to `{ message: string }`.
+
 ## 1.0.0-alpha.7
 
 ### Patch Changes
