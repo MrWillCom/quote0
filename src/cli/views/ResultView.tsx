@@ -1,8 +1,27 @@
 import { Box, Text } from 'ink'
+import { Table } from '@kud/ink-ui'
 import Container from '../../components/Container'
 import ListItem from '../../components/ListItem'
 import { SectionList } from '../../components/Section'
+import type { Timezone } from '../../api/modules/timezone'
 import type { CliResult } from '../types'
+
+type TimezoneTableRow = {
+  [key: string]: string | number
+  key: string
+  name: string
+  utcOffsetMinutes: number
+  utcOffsetLabel: string
+}
+
+function toTimezoneRows(timezones: Timezone[]): TimezoneTableRow[] {
+  return timezones.map(timezone => ({
+    key: timezone.key,
+    name: timezone.name,
+    utcOffsetMinutes: timezone.utcOffsetMinutes,
+    utcOffsetLabel: timezone.utcOffsetLabel,
+  }))
+}
 
 export function ResultView({ result }: { result: CliResult }) {
   if (result.type === 'device-list') {
@@ -94,6 +113,39 @@ export function ResultView({ result }: { result: CliResult }) {
           <ListItem>
             <Text>{result.response.message}</Text>
           </ListItem>
+        </SectionList>
+      </Container>
+    )
+  }
+
+  if (result.type === 'timezone-list') {
+    return (
+      <Container>
+        <SectionList>
+          <ListItem
+            trailing={
+              <Text dimColor>
+                {result.timezones.length}/{result.timezones.length}
+              </Text>
+            }
+          >
+            <Text>Timezones</Text>
+          </ListItem>
+          {result.timezones.length === 0 ? (
+            <ListItem>
+              <Text dimColor>No timezones found</Text>
+            </ListItem>
+          ) : (
+            <Table
+              columns={[
+                { key: 'key', header: 'Key' },
+                { key: 'name', header: 'Name' },
+                { key: 'utcOffsetLabel', header: 'Offset' },
+                { key: 'utcOffsetMinutes', header: 'Minutes' },
+              ]}
+              data={toTimezoneRows(result.timezones)}
+            />
+          )}
         </SectionList>
       </Container>
     )

@@ -3,6 +3,7 @@ import { version } from '../../package.json'
 import { registerAuthCommand } from './commands/auth'
 import { registerContentCommands } from './commands/content'
 import { registerDeviceCommands } from './commands/device'
+import { registerTimezoneCommands } from './commands/timezone'
 
 export function buildCli() {
   const cli = cac('quote0')
@@ -12,6 +13,7 @@ export function buildCli() {
   registerAuthCommand(cli)
   registerDeviceCommands(cli)
   registerContentCommands(cli)
+  registerTimezoneCommands(cli)
 
   cli.help()
   cli.version(version)

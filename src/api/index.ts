@@ -1,16 +1,19 @@
 import BaseClient, { type BaseClientArgs } from './base'
 import ContentModule from './modules/content'
 import DeviceModule from './modules/device'
+import TimezoneModule from './modules/timezone'
 
 class Quote0 extends BaseClient {
   device: DeviceModule
   content: ContentModule
+  timezone: TimezoneModule
 
   constructor(args: BaseClientArgs) {
     super(args)
 
     this.device = new DeviceModule(args)
     this.content = new ContentModule(args)
+    this.timezone = new TimezoneModule(args)
   }
 
   readonly display = BaseClient.DISPLAY
@@ -26,3 +29,4 @@ export {
   type DitherType,
   type DitherKernel,
 } from './modules/content'
+export { type Timezone } from './modules/timezone'

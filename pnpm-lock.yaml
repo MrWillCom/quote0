@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@kud/ink-ui':
+        specifier: ^0.1.1
+        version: 0.1.1(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)
       cac:
         specifier: ^7.0.0
         version: 7.0.0
@@ -327,6 +330,12 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@kud/ink-ui@0.1.1':
+    resolution: {integrity: sha512-lGpFvvrcYMMQqCHQeR80kIf9Dq47aF75OV+1d0ndsVoabBLDCZVr5/jDuSIoI6xZnrF30FTIiDe31suDGRE7Bw==}
+    peerDependencies:
+      ink: '>=4.0.0'
+      react: '>=18.0.0'
 
   '@manypkg/find-root@1.1.0':
     resolution: {integrity: sha512-mki5uBvhHzO8kYYix/WRy2WX8S3B5wdVSc9D6KcU5lQNglP2yt58/VfLuAK49glRXChosY8ap2oJ1qgma3GUVA==}
@@ -782,6 +791,10 @@ packages:
     resolution: {integrity: sha512-VGtlMu3x/4DOtIUwEkRezxUZ2lBacNJCHash0N0WeZDBS+7Ux1dm3XWAgWYxLJFMMdOeXMHXorshEFhbMSGelg==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
+  cli-spinners@2.9.2:
+    resolution: {integrity: sha512-ywqV+5MmyL4E7ybXgKys4DugZbX0FC6LnwrhjuykIjnK9k8OQacQ7axGKnjDXWNhns0xot3bZI5h55H8yo9cJg==}
+    engines: {node: '>=6'}
+
   cli-truncate@6.0.0:
     resolution: {integrity: sha512-3+YKIUFsohD9MIoOFPFBldjAlnfCmCDcqe6aYGFqlDTRKg80p4wg35L+j83QQ63iOlKRccEkbn8IuM++HsgEjA==}
     engines: {node: '>=22'}
@@ -956,6 +969,13 @@ packages:
   indent-string@5.0.0:
     resolution: {integrity: sha512-m6FAo/spmsW2Ab2fU35JTYwtOKa2yAwXSwgjSv1TJzh4Mh7mC3lzAOVLBprb72XsTrgkEIsl7YrFNAiDiRhIGg==}
     engines: {node: '>=12'}
+
+  ink-spinner@5.0.0:
+    resolution: {integrity: sha512-EYEasbEjkqLGyPOUc8hBJZNuC5GvXGMLu0w5gdTNskPc7Izc5vO3tdQEYnzvshucyGCBXc86ig0ujXPMWaQCdA==}
+    engines: {node: '>=14.16'}
+    peerDependencies:
+      ink: '>=4.0.0'
+      react: '>=18.0.0'
 
   ink-text-input@6.0.0:
     resolution: {integrity: sha512-Fw64n7Yha5deb1rHY137zHTAbSTNelUKuB5Kkk2HACXEtwIHBCf9OH2tP/LQ9fRYTl1F0dZgbW0zPnZk6FA9Lw==}
@@ -1731,6 +1751,12 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  '@kud/ink-ui@0.1.1(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      ink: 7.0.5(@types/react@19.2.17)(react@19.2.7)
+      ink-spinner: 5.0.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)
+      react: 19.2.7
+
   '@manypkg/find-root@1.1.0':
     dependencies:
       '@babel/runtime': 7.29.2
@@ -2029,6 +2055,8 @@ snapshots:
     dependencies:
       restore-cursor: 4.0.0
 
+  cli-spinners@2.9.2: {}
+
   cli-truncate@6.0.0:
     dependencies:
       slice-ansi: 9.0.0
@@ -2208,6 +2236,12 @@ snapshots:
   import-without-cache@0.4.0: {}
 
   indent-string@5.0.0: {}
+
+  ink-spinner@5.0.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7):
+    dependencies:
+      cli-spinners: 2.9.2
+      ink: 7.0.5(@types/react@19.2.17)(react@19.2.7)
+      react: 19.2.7
 
   ink-text-input@6.0.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7):
     dependencies:

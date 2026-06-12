@@ -34,8 +34,14 @@ export interface ContentImageResult {
   file: string
 }
 
+export interface TimezoneListResult {
+  type: 'timezone-list'
+  timezones: Awaited<ReturnType<import('../api/modules/timezone').default['list']>>
+}
+
 export type CliResult =
   | DeviceListResult
   | DeviceStatusResult
   | ContentNextResult
   | ContentImageResult
+  | TimezoneListResult
