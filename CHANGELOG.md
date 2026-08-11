@@ -1,5 +1,28 @@
 # quote0
 
+## 1.0.0-alpha.8
+
+### Minor Changes
+
+- 9f67ec8: Align with the latest Dot. Open API documentation.
+
+  - Fix response types: `.content.list()` now returns an array of task items including the `CANVAS_API` type, `.content.next()` response no longer declares the undocumented `code` field, `.device.list()` includes `alias`/`location`, and `.device.status()` marks `alias`/`location`/`renderInfo.current.image` as optional.
+  - Add the Device Settings API: `.device.getSettings()` / `.device.updateSettings()` and the `device settings <deviceId>` CLI command (read, or update with `--alias`, `--location`, `--timezone`, `--power-ms`, `--battery-ms`, `--sleep-start`/`--sleep-end`, `--sleep-disabled`).
+  - Add the Canvas API: `.canvas.pushCanvas()` and the `content canvas <deviceId> --file <windowData.json>` CLI command (with `--data`, `--layout-full-tw`).
+  - Add the `content list <deviceId> --task-type <fixed|loop>` CLI command.
+  - `content image` now accepts `--url` to push an http(s) image URL directly.
+  - CLI wording now refers to the device serial number, matching the official docs.
+
+- 0bc960b: Add `quote0 content text` CLI command for pushing text content to devices.
+- 0bc960b: Add `taskAlias` support to `ContentModule.pushImage()`.
+- df60417: Refactor CLI from yargs to cac with modular architecture and improved error handling.
+- 0bc960b: Add `taskAlias` and `styles` support to `ContentModule.pushText()`, and export text API font family constants.
+- 0bb7b20: Add `TimezoneModule` with `list()` for fetching supported timezones (`GET /authV2/open/timezones`), and expose `quote0 timezone list` CLI command.
+
+### Patch Changes
+
+- 0bc960b: Fix content API path duplication and correct Text/Image API response types to `{ message: string }`.
+
 ## 1.0.0-alpha.7
 
 ### Patch Changes
