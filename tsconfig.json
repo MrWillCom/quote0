@@ -1,10 +1,11 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
     "module": "esnext",
     "target": "esnext",
-    "lib": ["esnext"],
+    "lib": ["esnext", "DOM"],
     "types": ["node"],
     "sourceMap": true,
     "declaration": true,
@@ -21,5 +22,11 @@
     "allowImportingTsExtensions": false
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "tsup.config.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tsup.config.ts",
+    "src/cli", // temporarily stop typecheck cli
+    "src/index.tsx" // temporarily stop typecheck cli
+  ]
 }

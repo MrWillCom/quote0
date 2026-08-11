@@ -21,12 +21,20 @@
   ],
   "type": "module",
   "exports": {
-    ".": "./dist/api/index.mjs"
+    ".": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/client.gen.d.ts",
+      "default": "./dist/client/client.gen.js"
+    }
   },
   "scripts": {
     "build": "tsc --noEmit && tsdown",
     "dev": "tsx src/index.tsx",
     "start": "node dist/index.mjs",
+    "openapi-ts": "openapi-ts",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "changeset": "changeset"
@@ -42,6 +50,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",
+    "@hey-api/openapi-ts": "0.99.0",
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
     "oxfmt": "^0.62.0",
