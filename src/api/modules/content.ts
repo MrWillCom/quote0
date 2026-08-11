@@ -47,6 +47,21 @@ export type TextApiFontFamily = (typeof TEXT_API_FONT_FAMILIES)[number]
 export const TASK_TYPES = ['fixed', 'loop'] as const
 export type TaskType = (typeof TASK_TYPES)[number]
 
+export interface TaskListItem {
+  type: 'TEXT_API' | 'IMAGE_API' | 'CANVAS_API' | 'GENERAL'
+  key: string | null
+  refreshNow?: boolean
+  title?: string
+  message?: string
+  signature?: string
+  icon?: string
+  link?: string
+  image?: string
+  border?: Border
+  ditherType?: string
+  ditherKernel?: string
+}
+
 export interface TextStyle {
   fontFamily?: TextApiFontFamily
   fontSize?: number
@@ -63,33 +78,21 @@ export interface TextStyles {
   signature?: TextStyle
 }
 
-type NextApiResponse = { code: number; message: string }
 type ApiResponse = { message: string }
 
 class ContentModule extends BaseClient {
   async next({ deviceId }: { deviceId: string }) {
     const response = (await this.fetchApi(`/authV2/open/device/${deviceId}/next`, {
       method: 'POST',
-    })) as NextApiResponse
+    })) as ApiResponse
 
     return response
   }
 
   async list({ deviceId, taskType }: { deviceId: string; taskType: TaskType }) {
-    const response = (await this.fetchApi(`/authV2/open/device/${deviceId}/${taskType}/list`)) as {
-      type: 'TEXT_API' | 'IMAGE_API' | 'GENERAL'
-      key: string | null
-      refreshNow?: boolean
-      title?: string
-      message?: string
-      signature?: string
-      icon?: string
-      link?: string
-      image?: string
-      border?: Border
-      ditherType?: string
-      ditherKernel?: string
-    }
+    const response = (await this.fetchApi(
+      `/authV2/open/device/${deviceId}/${taskType}/list`,
+    )) as TaskListItem[]
 
     return response
   }

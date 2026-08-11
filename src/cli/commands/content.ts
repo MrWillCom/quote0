@@ -1,12 +1,14 @@
 import fs from 'node:fs/promises'
 import type { CAC } from 'cac'
-import { BORDER, DITHER_KERNELS, DITHER_TYPES, TEXT_API_FONT_FAMILIES } from '../../api'
+import { BORDER, DITHER_KERNELS, DITHER_TYPES, TASK_TYPES, TEXT_API_FONT_FAMILIES } from '../../api'
 import type { TextStyles } from '../../api/modules/content'
 import { createCliContext } from '../context'
 import { CliError } from '../errors'
 import { outputResult } from '../output'
 import type {
+  ContentCanvasResult,
   ContentImageResult,
+  ContentListResult,
   ContentNextResult,
   ContentTextResult,
   GlobalCommandOptions,
@@ -14,6 +16,10 @@ import type {
 
 interface ContentCommandOptions extends GlobalCommandOptions {
   file?: string
+  url?: string
+  data?: string
+  layoutFullTw?: string
+  taskType?: string
   refreshNow?: boolean
   link?: string
   border?: string
@@ -42,9 +48,19 @@ export function registerContentCommands(cli: CAC) {
     .command('content [...args]', 'Manage content')
     .usage('content <command> [options]')
     .example('content next <deviceId>')
+    .example('content list <deviceId> --task-type fixed')
     .example('content text <deviceId> --message "Hello"')
     .example('content image <deviceId> --file ./frame.png')
-    .option('-f, --file <file>', 'Path to image file')
+    .example('content image <deviceId> --url https://example.com/frame.png')
+    .example('content canvas <deviceId> --file ./window.json')
+    .option('-f, --file <file>', 'Path to image file, or windowData JSON file for `content canvas`')
+    .option('--url <url>', 'http(s) image URL to push directly (alternative to --file)')
+    .option('--data <data>', 'Path to data JSON file for `content canvas`')
+    .option(
+      '--layout-full-tw <layoutFullTw>',
+      'Tailwind classes overriding the FULL layout for `content canvas`',
+    )
+    .option('--task-type <taskType>', `Task type to list (${TASK_TYPES.join(', ')})`)
     .option('--refresh-now', 'Whether to refresh the device immediately')
     .option('--link <link>', 'Optional link to open when content is tapped')
     .option('--border <border>', 'Screen border color: 0 for white, 1 for black')
@@ -87,7 +103,7 @@ export function registerContentCommands(cli: CAC) {
 
       if (subcommand == null) {
         throw new CliError(
-          'Missing content command. Use `content next <deviceId>`, `content text <deviceId>`, or `content image <deviceId>`.',
+          'Missing content command. Use `content next <deviceId>`, `content list <deviceId>`, `content text <deviceId>`, `content image <deviceId>`, or `content canvas <deviceId>`.',
           {
             code: 'MISSING_SUBCOMMAND',
           },
@@ -98,7 +114,7 @@ export function registerContentCommands(cli: CAC) {
         const [deviceId, ...unused] = rest
 
         if (typeof deviceId !== 'string' || deviceId.length === 0) {
-          throw new CliError('Missing device ID. Usage: `content next <deviceId>`.', {
+          throw new CliError('Missing device serial number. Usage: `content next <deviceId>`.', {
             code: 'MISSING_DEVICE_ID',
           })
         }
@@ -120,12 +136,52 @@ export function registerContentCommands(cli: CAC) {
         return
       }
 
+      if (subcommand === 'list') {
+        const [deviceId, ...unused] = rest
+
+        if (typeof deviceId !== 'string' || deviceId.length === 0) {
+          throw new CliError(
+            'Missing device serial number. Usage: `content list <deviceId> --task-type <fixed|loop>`.',
+            {
+              code: 'MISSING_DEVICE_ID',
+            },
+          )
+        }
+
+        if (unused.length > 0) {
+          throw new CliError(`Unused args: ${unused.map(value => `\`${value}\``).join(', ')}`, {
+            code: 'UNUSED_ARGS',
+          })
+        }
+
+        const taskType = parseChoice('task-type', options.taskType, TASK_TYPES)
+
+        if (taskType == null) {
+          throw new CliError(
+            `Missing required option \`--task-type <taskType>\`. Expected one of: ${TASK_TYPES.join(', ')}.`,
+            {
+              code: 'MISSING_TASK_TYPE',
+            },
+          )
+        }
+
+        assertNoListOptions(options)
+
+        const result: ContentListResult = {
+          type: 'content-list',
+          tasks: await context.createClient().content.list({ deviceId, taskType }),
+        }
+
+        outputResult(context, result)
+        return
+      }
+
       if (subcommand === 'text') {
         const [deviceId, ...unused] = rest
 
         if (typeof deviceId !== 'string' || deviceId.length === 0) {
           throw new CliError(
-            'Missing device ID. Usage: `content text <deviceId> --message <message>`.',
+            'Missing device serial number. Usage: `content text <deviceId> --message <message>`.',
             {
               code: 'MISSING_DEVICE_ID',
             },
@@ -170,7 +226,53 @@ export function registerContentCommands(cli: CAC) {
 
         if (typeof deviceId !== 'string' || deviceId.length === 0) {
           throw new CliError(
-            'Missing device ID. Usage: `content image <deviceId> --file <file>`.',
+            'Missing device serial number. Usage: `content image <deviceId> --file <file>`.',
+            {
+              code: 'MISSING_DEVICE_ID',
+            },
+          )
+        }
+
+        if (unused.length > 0) {
+          throw new CliError(`Unused args: ${unused.map(value => `\`${value}\``).join(', ')}`, {
+            code: 'UNUSED_ARGS',
+          })
+        }
+
+        const border = parseBorder(options.border)
+        const ditherType = parseChoice('dither-type', options.ditherType, DITHER_TYPES)
+        const ditherKernel = parseChoice('dither-kernel', options.ditherKernel, DITHER_KERNELS)
+        const taskAlias = parseTaskAlias(options.taskAlias)
+        const { image, source } = await resolveImageSource(options)
+
+        const result: ContentImageResult = {
+          type: 'content-image',
+          file: source,
+          response: await context.createClient().content.pushImage(
+            { deviceId },
+            {
+              image,
+              refreshNow: options.refreshNow,
+              link: options.link,
+              border,
+              ditherType,
+              ditherKernel,
+              taskKey: options.taskKey,
+              taskAlias,
+            },
+          ),
+        }
+
+        outputResult(context, result)
+        return
+      }
+
+      if (subcommand === 'canvas') {
+        const [deviceId, ...unused] = rest
+
+        if (typeof deviceId !== 'string' || deviceId.length === 0) {
+          throw new CliError(
+            'Missing device serial number. Usage: `content canvas <deviceId> --file <windowData.json>`.',
             {
               code: 'MISSING_DEVICE_ID',
             },
@@ -186,29 +288,35 @@ export function registerContentCommands(cli: CAC) {
         const filePath = options.file
 
         if (typeof filePath !== 'string' || filePath.length === 0) {
-          throw new CliError('Missing required option `--file <file>`.', {
+          throw new CliError('Missing required option `--file <windowData.json>`.', {
             code: 'MISSING_FILE',
           })
         }
 
         const border = parseBorder(options.border)
-        const ditherType = parseChoice('dither-type', options.ditherType, DITHER_TYPES)
-        const ditherKernel = parseChoice('dither-kernel', options.ditherKernel, DITHER_KERNELS)
         const taskAlias = parseTaskAlias(options.taskAlias)
-        const file = await fs.readFile(filePath)
+        const windowData = await readJsonFile('file', filePath)
+        const data =
+          typeof options.data === 'string' && options.data.length > 0
+            ? await readJsonFile('data', options.data)
+            : undefined
+        const layoutFull =
+          typeof options.layoutFullTw === 'string' && options.layoutFullTw.length > 0
+            ? { tw: options.layoutFullTw }
+            : undefined
 
-        const result: ContentImageResult = {
-          type: 'content-image',
+        const result: ContentCanvasResult = {
+          type: 'content-canvas',
           file: filePath,
-          response: await context.createClient().content.pushImage(
+          response: await context.createClient().canvas.pushCanvas(
             { deviceId },
             {
-              image: file.toString('base64'),
+              windowData,
+              data,
+              layoutFull,
               refreshNow: options.refreshNow,
               link: options.link,
               border,
-              ditherType,
-              ditherKernel,
               taskKey: options.taskKey,
               taskAlias,
             },
@@ -409,41 +517,144 @@ function parseChoice<T extends readonly string[]>(name: string, value: unknown, 
 }
 
 function assertNoNextOptions(options: ContentCommandOptions) {
-  const unsupportedOptions = [
-    ['file', options.file],
-    ['refresh-now', options.refreshNow],
-    ['link', options.link],
-    ['border', options.border],
-    ['dither-type', options.ditherType],
-    ['dither-kernel', options.ditherKernel],
-    ['task-key', options.taskKey],
-    ['task-alias', options.taskAlias],
-    ['message', options.message],
-    ['title', options.title],
-    ['signature', options.signature],
-    ['icon', options.icon],
-    ['title-font-family', options.titleFontFamily],
-    ['title-font-size', options.titleFontSize],
-    ['title-font-weight', options.titleFontWeight],
-    ['message-font-family', options.messageFontFamily],
-    ['message-font-size', options.messageFontSize],
-    ['message-font-weight', options.messageFontWeight],
-    ['message-line-height', options.messageLineHeight],
-    ['signature-font-family', options.signatureFontFamily],
-    ['signature-font-size', options.signatureFontSize],
-    ['signature-font-weight', options.signatureFontWeight],
-  ].flatMap(([name, value]) => (value == null ? [] : [name]))
+  assertNoOptionsFor('content next', options, [
+    'taskType',
+    'refreshNow',
+    'link',
+    'border',
+    'ditherType',
+    'ditherKernel',
+    'taskKey',
+    'taskAlias',
+    'message',
+    'title',
+    'signature',
+    'icon',
+    'titleFontFamily',
+    'titleFontSize',
+    'titleFontWeight',
+    'messageFontFamily',
+    'messageFontSize',
+    'messageFontWeight',
+    'messageLineHeight',
+    'signatureFontFamily',
+    'signatureFontSize',
+    'signatureFontWeight',
+    ...SHARED_FILE_OPTIONS,
+  ])
+}
+
+function assertNoListOptions(options: ContentCommandOptions) {
+  assertNoOptionsFor('content list', options, [
+    'refreshNow',
+    'link',
+    'border',
+    'ditherType',
+    'ditherKernel',
+    'taskKey',
+    'taskAlias',
+    'message',
+    'title',
+    'signature',
+    'icon',
+    'titleFontFamily',
+    'titleFontSize',
+    'titleFontWeight',
+    'messageFontFamily',
+    'messageFontSize',
+    'messageFontWeight',
+    'messageLineHeight',
+    'signatureFontFamily',
+    'signatureFontSize',
+    'signatureFontWeight',
+    ...SHARED_FILE_OPTIONS,
+  ])
+}
+
+const SHARED_FILE_OPTIONS = ['file', 'url', 'data', 'layoutFullTw'] as const
+
+const OPTION_FLAG_NAMES: Record<string, string> = {
+  taskType: 'task-type',
+  refreshNow: 'refresh-now',
+  ditherType: 'dither-type',
+  ditherKernel: 'dither-kernel',
+  taskKey: 'task-key',
+  taskAlias: 'task-alias',
+  layoutFullTw: 'layout-full-tw',
+  titleFontFamily: 'title-font-family',
+  titleFontSize: 'title-font-size',
+  titleFontWeight: 'title-font-weight',
+  messageFontFamily: 'message-font-family',
+  messageFontSize: 'message-font-size',
+  messageFontWeight: 'message-font-weight',
+  messageLineHeight: 'message-line-height',
+  signatureFontFamily: 'signature-font-family',
+  signatureFontSize: 'signature-font-size',
+  signatureFontWeight: 'signature-font-weight',
+}
+
+function assertNoOptionsFor(
+  command: string,
+  options: ContentCommandOptions,
+  keys: readonly string[],
+) {
+  const unsupportedOptions = keys.flatMap(key =>
+    options[key as keyof ContentCommandOptions] == null
+      ? []
+      : [`--${OPTION_FLAG_NAMES[key] ?? key}`],
+  )
 
   if (unsupportedOptions.length === 0) {
     return
   }
 
-  throw new CliError(
-    `Unsupported option for \`content next\`: ${unsupportedOptions
-      .map(name => `--${name}`)
-      .join(', ')}.`,
-    {
-      code: 'UNSUPPORTED_OPTION',
-    },
-  )
+  throw new CliError(`Unsupported option for \`${command}\`: ${unsupportedOptions.join(', ')}.`, {
+    code: 'UNSUPPORTED_OPTION',
+  })
+}
+
+async function resolveImageSource(options: ContentCommandOptions) {
+  const filePath = typeof options.file === 'string' && options.file.length > 0 ? options.file : null
+  const url = typeof options.url === 'string' && options.url.length > 0 ? options.url : null
+
+  if (filePath != null && url != null) {
+    throw new CliError('Options `--file` and `--url` cannot be used together.', {
+      code: 'CONFLICTING_OPTIONS',
+    })
+  }
+
+  if (url != null) {
+    if (!/^https?:\/\//.test(url) || url.length > 2048) {
+      throw new CliError(
+        'Invalid --url. Expected an http(s) URL with a maximum length of 2048 characters.',
+        {
+          code: 'INVALID_URL',
+        },
+      )
+    }
+
+    return { image: url, source: url }
+  }
+
+  if (filePath == null) {
+    throw new CliError('Missing required option `--file <file>` or `--url <url>`.', {
+      code: 'MISSING_FILE',
+    })
+  }
+
+  const file = await fs.readFile(filePath)
+
+  return { image: file.toString('base64'), source: filePath }
+}
+
+async function readJsonFile(name: string, filePath: string) {
+  const raw = await fs.readFile(filePath, 'utf8')
+
+  try {
+    return JSON.parse(raw) as Record<string, unknown>
+  } catch {
+    throw new CliError(`Invalid --${name}: ${filePath} is not valid JSON.`, {
+      code: `INVALID_${name.replaceAll('-', '_').toUpperCase()}`,
+    })
+  }
 }

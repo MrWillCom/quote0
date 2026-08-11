@@ -73,7 +73,7 @@ export function ResultView({ result }: { result: CliResult }) {
           <ListItem
             trailing={
               <Text>
-                <Text dimColor>Device ID: </Text>
+                <Text dimColor>Serial Number: </Text>
                 {device.deviceId}
               </Text>
             }
@@ -92,7 +92,7 @@ export function ResultView({ result }: { result: CliResult }) {
               ['Last Render', device.renderInfo.last],
               ['Next Render (Battery)', device.renderInfo.next.battery],
               ['Next Render (Power)', device.renderInfo.next.power],
-              ['Current Images', String(device.renderInfo.current.image.length)],
+              ['Current Images', String(device.renderInfo.current.image?.length ?? 0)],
               ['Version', `v${device.status.version}`],
             ].map(([label, value]) => (
               <ListItem key={label} trailing={<Text>{value}</Text>}>
@@ -100,6 +100,60 @@ export function ResultView({ result }: { result: CliResult }) {
               </ListItem>
             ))}
           </Box>
+        </SectionList>
+      </Container>
+    )
+  }
+
+  if (result.type === 'device-settings') {
+    const { settings } = result
+
+    return (
+      <Container>
+        <SectionList>
+          <ListItem trailing={<Text dimColor>{result.deviceId}</Text>}>
+            <Text>Device Settings</Text>
+          </ListItem>
+          <Box flexDirection="column">
+            {[
+              ['Alias', settings.alias ?? '-'],
+              ['Location', settings.location ?? '-'],
+              ['Timezone', settings.timezone ?? '-'],
+              [
+                'Interval (Power)',
+                settings.interval?.powerMs != null ? `${settings.interval.powerMs} ms` : '-',
+              ],
+              [
+                'Interval (Battery)',
+                settings.interval?.batteryMs != null ? `${settings.interval.batteryMs} ms` : '-',
+              ],
+              [
+                'Sleep',
+                settings.sleep != null
+                  ? settings.sleep.enabled
+                    ? `${settings.sleep.start} - ${settings.sleep.end}`
+                    : 'Disabled'
+                  : '-',
+              ],
+            ].map(([label, value]) => (
+              <ListItem key={label} trailing={<Text>{value}</Text>}>
+                <Text dimColor>{label}</Text>
+              </ListItem>
+            ))}
+          </Box>
+        </SectionList>
+      </Container>
+    )
+  }
+
+  if (result.type === 'device-settings-update') {
+    return (
+      <Container>
+        <SectionList>
+          <Text>Update Device Settings</Text>
+          <ListItem>
+            <Text>{result.response.message}</Text>
+          </ListItem>
         </SectionList>
       </Container>
     )
@@ -159,6 +213,60 @@ export function ResultView({ result }: { result: CliResult }) {
               data={toTimezoneRows(result.timezones)}
             />
           )}
+        </SectionList>
+      </Container>
+    )
+  }
+
+  if (result.type === 'content-list') {
+    return (
+      <Container>
+        <SectionList>
+          <ListItem
+            trailing={
+              <Text dimColor>
+                {result.tasks.length}/{result.tasks.length}
+              </Text>
+            }
+          >
+            <Text>Tasks</Text>
+          </ListItem>
+          {result.tasks.length === 0 ? (
+            <ListItem>
+              <Text dimColor>No tasks found</Text>
+            </ListItem>
+          ) : (
+            result.tasks.map((task, index) => (
+              <Box key={task.key ?? index} flexDirection="column">
+                <ListItem trailing={<Text>{task.type}</Text>}>
+                  <Text dimColor>{task.key ?? '(no key)'}</Text>
+                </ListItem>
+                {task.title != null && (
+                  <ListItem trailing={<Text>{task.title}</Text>}>
+                    <Text dimColor>Title</Text>
+                  </ListItem>
+                )}
+                {task.message != null && (
+                  <ListItem trailing={<Text>{task.message}</Text>}>
+                    <Text dimColor>Message</Text>
+                  </ListItem>
+                )}
+              </Box>
+            ))
+          )}
+        </SectionList>
+      </Container>
+    )
+  }
+
+  if (result.type === 'content-canvas') {
+    return (
+      <Container>
+        <SectionList>
+          <Text>Push Canvas</Text>
+          <ListItem trailing={<Text dimColor>{result.file}</Text>}>
+            <Text>{result.response.message}</Text>
+          </ListItem>
         </SectionList>
       </Container>
     )
