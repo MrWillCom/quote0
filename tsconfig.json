@@ -22,11 +22,5 @@
     "allowImportingTsExtensions": false
   },
   "include": ["src/**/*"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "tsup.config.ts",
-    "src/cli", // temporarily stop typecheck cli
-    "src/index.tsx" // temporarily stop typecheck cli
-  ]
+  "exclude": ["node_modules", "dist", "tsup.config.ts"]
 }

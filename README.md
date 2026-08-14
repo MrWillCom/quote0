@@ -15,7 +15,17 @@ TypeScript SDK and CLI for Quote/0.
 npm install -g quote0@alpha
 ```
 
-Then, call `quote0` in your terminal to see the usage.
+Then, call `quote0` in your terminal to see the usage. Run `quote0 auth` to save an API key, then use curated commands such as `quote0 device list` and `quote0 content text`.
+
+For endpoints without a curated command, `quote0 api` makes an authenticated HTTP request (same idea as `gh api`):
+
+```sh
+quote0 api devices
+quote0 api device/ABCD1234/status
+quote0 api -X POST device/ABCD1234/text -f message="Hello"
+```
+
+Short paths are prefixed with `/api/authV2/open/`. `quote0 api` always prints indented JSON.
 
 ## Use as SDK
 
@@ -24,9 +34,15 @@ npm install quote0@alpha
 ```
 
 ```js
-import Quote0 from 'quote0'
+import { listDevices } from 'quote0'
+import { createClient, createConfig } from 'quote0/client'
 
-const quote0 = new Quote0({
-  apiKey: 'dot_app_ABCD1234....EFGH5678',
-})
+const client = createClient(
+  createConfig({
+    auth: 'dot_app_ABCD1234....EFGH5678',
+    baseUrl: 'https://dot.mindreset.tech',
+  }),
+)
+
+const { data } = await listDevices({ client, throwOnError: true })
 ```

@@ -9,6 +9,15 @@ export async function runCli(argv = process.argv) {
     cli.parse(argv, { run: false })
 
     if (cli.matchedCommand == null) {
+      if (
+        argv.includes('--help') ||
+        argv.includes('-h') ||
+        argv.includes('--version') ||
+        argv.includes('-v')
+      ) {
+        return
+      }
+
       const [command] = cli.args
 
       if (command == null) {

@@ -1,10 +1,23 @@
 import fs from 'node:fs/promises'
 import type { CAC } from 'cac'
-import { BORDER, DITHER_KERNELS, DITHER_TYPES, TASK_TYPES, TEXT_API_FONT_FAMILIES } from '../../api'
-import type { TextStyles } from '../../api/modules/content'
+import {
+  displayCanvas,
+  displayImage,
+  displayText,
+  listDeviceTasks,
+  switchNextContent,
+  type Border,
+  type CanvasContentRequest,
+  type CanvasWindowData,
+  type ImageContentRequest,
+  type TextContentRequest,
+  type TextStyle,
+} from '../../client'
+import { BORDER, DITHER_KERNELS, DITHER_TYPES, TASK_TYPES } from '../constants'
 import { createCliContext } from '../context'
 import { CliError } from '../errors'
 import { outputResult } from '../output'
+import { sdkData } from '../sdk'
 import type {
   ContentCanvasResult,
   ContentImageResult,
@@ -78,23 +91,14 @@ export function registerContentCommands(cli: CAC) {
     .option('--title <title>', 'Text title')
     .option('--signature <signature>', 'Text signature')
     .option('--icon <icon>', 'PNG Base64 icon data or http(s) image URL')
-    .option(
-      '--title-font-family <titleFontFamily>',
-      `Title font family (${TEXT_API_FONT_FAMILIES.join(', ')})`,
-    )
+    .option('--title-font-family <titleFontFamily>', 'Title font family')
     .option('--title-font-size <titleFontSize>', 'Title font size (8-48 px)')
     .option('--title-font-weight <titleFontWeight>', 'Title font weight (100-900)')
-    .option(
-      '--message-font-family <messageFontFamily>',
-      `Message font family (${TEXT_API_FONT_FAMILIES.join(', ')})`,
-    )
+    .option('--message-font-family <messageFontFamily>', 'Message font family')
     .option('--message-font-size <messageFontSize>', 'Message font size (8-48 px)')
     .option('--message-font-weight <messageFontWeight>', 'Message font weight (100-900)')
     .option('--message-line-height <messageLineHeight>', 'Message line height (0.8-3)')
-    .option(
-      '--signature-font-family <signatureFontFamily>',
-      `Signature font family (${TEXT_API_FONT_FAMILIES.join(', ')})`,
-    )
+    .option('--signature-font-family <signatureFontFamily>', 'Signature font family')
     .option('--signature-font-size <signatureFontSize>', 'Signature font size (8-48 px)')
     .option('--signature-font-weight <signatureFontWeight>', 'Signature font weight (100-900)')
     .action(async (args: string[], options: ContentCommandOptions) => {
@@ -129,7 +133,9 @@ export function registerContentCommands(cli: CAC) {
 
         const result: ContentNextResult = {
           type: 'content-next',
-          response: await context.createClient().content.next({ deviceId }),
+          response: await sdkData(
+            switchNextContent({ deviceId }, { client: context.createClient(), throwOnError: true }),
+          ),
         }
 
         outputResult(context, result)
@@ -169,7 +175,12 @@ export function registerContentCommands(cli: CAC) {
 
         const result: ContentListResult = {
           type: 'content-list',
-          tasks: await context.createClient().content.list({ deviceId, taskType }),
+          tasks: await sdkData(
+            listDeviceTasks(
+              { deviceId, taskType },
+              { client: context.createClient(), throwOnError: true },
+            ),
+          ),
         }
 
         outputResult(context, result)
@@ -201,19 +212,24 @@ export function registerContentCommands(cli: CAC) {
 
         const result: ContentTextResult = {
           type: 'content-text',
-          response: await context.createClient().content.pushText(
-            { deviceId },
-            {
-              message: options.message,
-              title: options.title,
-              signature: options.signature,
-              icon: options.icon,
-              link: options.link,
-              refreshNow: options.refreshNow,
-              taskKey: options.taskKey,
-              taskAlias,
-              styles,
-            },
+          response: await sdkData(
+            displayText(
+              {
+                deviceId,
+                textContentRequest: {
+                  message: options.message,
+                  title: options.title,
+                  signature: options.signature,
+                  icon: options.icon,
+                  link: options.link,
+                  refreshNow: options.refreshNow,
+                  taskKey: options.taskKey,
+                  taskAlias,
+                  styles,
+                },
+              },
+              { client: context.createClient(), throwOnError: true },
+            ),
           ),
         }
 
@@ -245,21 +261,25 @@ export function registerContentCommands(cli: CAC) {
         const taskAlias = parseTaskAlias(options.taskAlias)
         const { image, source } = await resolveImageSource(options)
 
+        const imageContentRequest: ImageContentRequest = {
+          image,
+          refreshNow: options.refreshNow,
+          link: options.link,
+          border,
+          ditherType,
+          ditherKernel,
+          taskKey: options.taskKey,
+          taskAlias,
+        }
+
         const result: ContentImageResult = {
           type: 'content-image',
           file: source,
-          response: await context.createClient().content.pushImage(
-            { deviceId },
-            {
-              image,
-              refreshNow: options.refreshNow,
-              link: options.link,
-              border,
-              ditherType,
-              ditherKernel,
-              taskKey: options.taskKey,
-              taskAlias,
-            },
+          response: await sdkData(
+            displayImage(
+              { deviceId, imageContentRequest },
+              { client: context.createClient(), throwOnError: true },
+            ),
           ),
         }
 
@@ -305,21 +325,25 @@ export function registerContentCommands(cli: CAC) {
             ? { tw: options.layoutFullTw }
             : undefined
 
+        const canvasContentRequest: CanvasContentRequest = {
+          windowData: windowData as CanvasWindowData,
+          data,
+          layoutFull,
+          refreshNow: options.refreshNow,
+          link: options.link,
+          border,
+          taskKey: options.taskKey,
+          taskAlias,
+        }
+
         const result: ContentCanvasResult = {
           type: 'content-canvas',
           file: filePath,
-          response: await context.createClient().canvas.pushCanvas(
-            { deviceId },
-            {
-              windowData,
-              data,
-              layoutFull,
-              refreshNow: options.refreshNow,
-              link: options.link,
-              border,
-              taskKey: options.taskKey,
-              taskAlias,
-            },
+          response: await sdkData(
+            displayCanvas(
+              { deviceId, canvasContentRequest },
+              { client: context.createClient(), throwOnError: true },
+            ),
           ),
         }
 
@@ -348,9 +372,9 @@ function assertAtLeastOneTextField(options: ContentCommandOptions) {
   }
 }
 
-function buildTextStyles(options: ContentCommandOptions): TextStyles | undefined {
+function buildTextStyles(options: ContentCommandOptions): TextContentRequest['styles'] {
   const title = definedEntries({
-    fontFamily: parseOptionalFontFamily('title-font-family', options.titleFontFamily),
+    fontFamily: parseOptionalString('title-font-family', options.titleFontFamily),
     fontSize: parseOptionalNumberInRange('title-font-size', options.titleFontSize, {
       min: 8,
       max: 48,
@@ -359,7 +383,7 @@ function buildTextStyles(options: ContentCommandOptions): TextStyles | undefined
   })
 
   const message = definedEntries({
-    fontFamily: parseOptionalFontFamily('message-font-family', options.messageFontFamily),
+    fontFamily: parseOptionalString('message-font-family', options.messageFontFamily),
     fontSize: parseOptionalNumberInRange('message-font-size', options.messageFontSize, {
       min: 8,
       max: 48,
@@ -372,7 +396,7 @@ function buildTextStyles(options: ContentCommandOptions): TextStyles | undefined
   })
 
   const signature = definedEntries({
-    fontFamily: parseOptionalFontFamily('signature-font-family', options.signatureFontFamily),
+    fontFamily: parseOptionalString('signature-font-family', options.signatureFontFamily),
     fontSize: parseOptionalNumberInRange('signature-font-size', options.signatureFontSize, {
       min: 8,
       max: 48,
@@ -392,7 +416,7 @@ function buildTextStyles(options: ContentCommandOptions): TextStyles | undefined
     ...(hasTitle && { title }),
     ...(hasMessage && { message }),
     ...(hasSignature && { signature }),
-  } as TextStyles
+  }
 }
 
 function definedEntries<T extends Record<string, unknown>>(obj: T): Partial<T> {
@@ -407,24 +431,18 @@ function definedEntries<T extends Record<string, unknown>>(obj: T): Partial<T> {
   return result
 }
 
-function parseOptionalFontFamily(name: string, value: unknown) {
+function parseOptionalString(name: string, value: unknown) {
   if (value == null) {
     return undefined
   }
 
-  if (
-    typeof value !== 'string' ||
-    !TEXT_API_FONT_FAMILIES.includes(value as (typeof TEXT_API_FONT_FAMILIES)[number])
-  ) {
-    throw new CliError(
-      `Invalid --${name}. Expected one of: ${TEXT_API_FONT_FAMILIES.join(', ')}.`,
-      {
-        code: `INVALID_${name.replaceAll('-', '_').toUpperCase()}`,
-      },
-    )
+  if (typeof value !== 'string' || value.length === 0) {
+    throw new CliError(`Invalid --${name}. Expected a non-empty string.`, {
+      code: `INVALID_${name.replaceAll('-', '_').toUpperCase()}`,
+    })
   }
 
-  return value as (typeof TEXT_API_FONT_FAMILIES)[number]
+  return value
 }
 
 function parseOptionalNumberInRange(
@@ -450,7 +468,7 @@ function parseOptionalNumberInRange(
   return parsed
 }
 
-function parseOptionalFontWeight(name: string, value: unknown) {
+function parseOptionalFontWeight(name: string, value: unknown): TextStyle['fontWeight'] {
   if (value == null) {
     return undefined
   }
@@ -466,7 +484,7 @@ function parseOptionalFontWeight(name: string, value: unknown) {
     )
   }
 
-  return parsed
+  return parsed as TextStyle['fontWeight']
 }
 
 function parseTaskAlias(value: unknown) {
@@ -499,7 +517,7 @@ function parseBorder(value: unknown) {
     })
   }
 
-  return parsed as (typeof BORDER)[number]
+  return parsed as Border
 }
 
 function parseChoice<T extends readonly string[]>(name: string, value: unknown, choices: T) {

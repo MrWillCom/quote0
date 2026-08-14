@@ -1,68 +1,67 @@
+import type {
+  Device,
+  DeviceSettingsResponse,
+  DeviceStatusResponse,
+  DeviceTask,
+  MessageResponse,
+  Timezone,
+} from '../client'
+
 export interface GlobalCommandOptions {
   json?: boolean
 }
 
 export interface DeviceListResult {
   type: 'device-list'
-  devices: Awaited<ReturnType<import('../api/modules/device').default['list']>>
+  devices: Device[]
 }
 
 export interface DeviceStatusResult {
   type: 'device-status'
-  device: Awaited<ReturnType<import('../api/modules/device').default['status']>>
+  device: DeviceStatusResponse
 }
 
 export interface DeviceSettingsResult {
   type: 'device-settings'
   deviceId: string
-  settings: Awaited<ReturnType<import('../api/modules/device').default['getSettings']>>
+  settings: DeviceSettingsResponse
 }
 
 export interface DeviceSettingsUpdateResult {
   type: 'device-settings-update'
-  response: {
-    message: string
-  }
+  response: MessageResponse
 }
 
 export interface ContentNextResult {
   type: 'content-next'
-  response: {
-    message: string
-  }
+  response: MessageResponse
 }
 
 export interface ContentListResult {
   type: 'content-list'
-  tasks: Awaited<ReturnType<import('../api/modules/content').default['list']>>
+  tasks: DeviceTask[]
 }
 
 export interface ContentTextResult {
   type: 'content-text'
-  response: {
-    message: string
-  }
+  response: MessageResponse
 }
 
 export interface ContentImageResult {
   type: 'content-image'
-  response: {
-    message: string
-  }
+  response: MessageResponse
   file: string
 }
 
 export interface ContentCanvasResult {
   type: 'content-canvas'
-  response: {
-    message: string
-  }
+  response: MessageResponse
   file: string
 }
 
 export interface TimezoneListResult {
   type: 'timezone-list'
-  timezones: Awaited<ReturnType<import('../api/modules/timezone').default['list']>>
+  timezones: Timezone[]
 }
 
 export type CliResult =
