@@ -3,8 +3,8 @@ import { Table } from '@kud/ink-ui'
 import Container from '../../components/Container'
 import ListItem from '../../components/ListItem'
 import { SectionList } from '../../components/Section'
-import type { Timezone } from '../../api/modules/timezone'
-import type { CliResult } from '../types'
+import type { Timezone } from '../../client'
+import type { CliResult, DeviceStatusResult } from '../types'
 
 type TimezoneTableRow = {
   [key: string]: string | number
@@ -21,6 +21,39 @@ function toTimezoneRows(timezones: Timezone[]): TimezoneTableRow[] {
     utcOffsetMinutes: timezone.utcOffsetMinutes,
     utcOffsetLabel: timezone.utcOffsetLabel,
   }))
+}
+
+function displayValue(value: unknown) {
+  if (value == null || value === '') {
+    return '-'
+  }
+
+  return String(value)
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  if (value != null && typeof value === 'object' && !Array.isArray(value)) {
+    return value as Record<string, unknown>
+  }
+}
+
+function statusRows(device: DeviceStatusResult['device']) {
+  const status = asRecord(device.status)
+  const renderInfo = asRecord(device.renderInfo)
+  const next = asRecord(renderInfo?.next)
+  const current = asRecord(renderInfo?.current)
+  const images = current?.image
+
+  return [
+    ['Status', displayValue(status?.current)],
+    ['Battery', displayValue(status?.battery)],
+    ['Wi-Fi', displayValue(status?.wifi)],
+    ['Last Render', displayValue(renderInfo?.last)],
+    ['Next Render (Battery)', displayValue(next?.battery)],
+    ['Next Render (Power)', displayValue(next?.power)],
+    ['Current Images', String(Array.isArray(images) ? images.length : 0)],
+    ['Version', status?.version != null ? `v${String(status.version)}` : '-'],
+  ] as const
 }
 
 export function ResultView({ result }: { result: CliResult }) {
@@ -42,18 +75,18 @@ export function ResultView({ result }: { result: CliResult }) {
               <Text dimColor>No devices found</Text>
             </ListItem>
           ) : (
-            result.devices.map(device => (
-              <Box key={device.id} flexDirection="column">
-                <ListItem trailing={<Text>{device.id}</Text>}>
+            result.devices.map((device, index) => (
+              <Box key={device.id ?? index} flexDirection="column">
+                <ListItem trailing={<Text>{displayValue(device.id)}</Text>}>
                   <Text dimColor>ID</Text>
                 </ListItem>
-                <ListItem trailing={<Text>{device.series}</Text>}>
+                <ListItem trailing={<Text>{displayValue(device.series)}</Text>}>
                   <Text dimColor>Series</Text>
                 </ListItem>
-                <ListItem trailing={<Text>{device.model}</Text>}>
+                <ListItem trailing={<Text>{displayValue(device.model)}</Text>}>
                   <Text dimColor>Model</Text>
                 </ListItem>
-                <ListItem trailing={<Text>{device.edition}</Text>}>
+                <ListItem trailing={<Text>{displayValue(device.edition)}</Text>}>
                   <Text dimColor>Edition</Text>
                 </ListItem>
               </Box>
@@ -66,6 +99,7 @@ export function ResultView({ result }: { result: CliResult }) {
 
   if (result.type === 'device-status') {
     const { device } = result
+    const status = asRecord(device.status)
 
     return (
       <Container>
@@ -74,27 +108,18 @@ export function ResultView({ result }: { result: CliResult }) {
             trailing={
               <Text>
                 <Text dimColor>Serial Number: </Text>
-                {device.deviceId}
+                {displayValue(device.deviceId)}
               </Text>
             }
           >
             <Box gap={1}>
               <Text>{device.alias ?? 'Unnamed device'}</Text>
               {device.location && <Text dimColor>{device.location}</Text>}
-              <Text dimColor>{device.status.battery}</Text>
+              <Text dimColor>{displayValue(status?.battery)}</Text>
             </Box>
           </ListItem>
           <Box flexDirection="column">
-            {[
-              ['Status', device.status.current],
-              ['Battery', device.status.battery],
-              ['Wi-Fi', device.status.wifi],
-              ['Last Render', device.renderInfo.last],
-              ['Next Render (Battery)', device.renderInfo.next.battery],
-              ['Next Render (Power)', device.renderInfo.next.power],
-              ['Current Images', String(device.renderInfo.current.image?.length ?? 0)],
-              ['Version', `v${device.status.version}`],
-            ].map(([label, value]) => (
+            {statusRows(device).map(([label, value]) => (
               <ListItem key={label} trailing={<Text>{value}</Text>}>
                 <Text dimColor>{label}</Text>
               </ListItem>
@@ -238,16 +263,16 @@ export function ResultView({ result }: { result: CliResult }) {
           ) : (
             result.tasks.map((task, index) => (
               <Box key={task.key ?? index} flexDirection="column">
-                <ListItem trailing={<Text>{task.type}</Text>}>
+                <ListItem trailing={<Text>{displayValue(task.type)}</Text>}>
                   <Text dimColor>{task.key ?? '(no key)'}</Text>
                 </ListItem>
                 {task.title != null && (
-                  <ListItem trailing={<Text>{task.title}</Text>}>
+                  <ListItem trailing={<Text>{displayValue(task.title)}</Text>}>
                     <Text dimColor>Title</Text>
                   </ListItem>
                 )}
                 {task.message != null && (
-                  <ListItem trailing={<Text>{task.message}</Text>}>
+                  <ListItem trailing={<Text>{displayValue(task.message)}</Text>}>
                     <Text dimColor>Message</Text>
                   </ListItem>
                 )}

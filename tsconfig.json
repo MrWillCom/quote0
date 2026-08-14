@@ -1,10 +1,11 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
     "module": "esnext",
     "target": "esnext",
-    "lib": ["esnext"],
+    "lib": ["esnext", "DOM"],
     "types": ["node"],
     "sourceMap": true,
     "declaration": true,

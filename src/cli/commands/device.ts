@@ -1,8 +1,15 @@
 import type { CAC } from 'cac'
-import type { DeviceSettings } from '../../api/modules/device'
+import {
+  getDeviceSettings,
+  getDeviceStatus,
+  listDevices,
+  updateDeviceSettings,
+  type DeviceSettingsRequest,
+} from '../../client'
 import { createCliContext } from '../context'
 import { CliError } from '../errors'
 import { outputResult } from '../output'
+import { sdkData } from '../sdk'
 import type {
   DeviceListResult,
   DeviceSettingsResult,
@@ -65,7 +72,9 @@ export function registerDeviceCommands(cli: CAC) {
 
         const result: DeviceListResult = {
           type: 'device-list',
-          devices: await context.createClient().device.list(),
+          devices: await sdkData(
+            listDevices({ client: context.createClient(), throwOnError: true }),
+          ),
         }
 
         outputResult(context, result)
@@ -91,7 +100,9 @@ export function registerDeviceCommands(cli: CAC) {
 
         const result: DeviceStatusResult = {
           type: 'device-status',
-          device: await context.createClient().device.status({ deviceId }),
+          device: await sdkData(
+            getDeviceStatus({ deviceId }, { client: context.createClient(), throwOnError: true }),
+          ),
         }
 
         outputResult(context, result)
@@ -113,6 +124,8 @@ export function registerDeviceCommands(cli: CAC) {
           })
         }
 
+        const client = context.createClient()
+
         // When disabling sleep without explicit times, reuse the device's current
         // sleep window: the API requires all three sleep fields and start !== end.
         let currentSleep: { start: string; end: string } | undefined
@@ -121,7 +134,9 @@ export function registerDeviceCommands(cli: CAC) {
           options.sleepStart == null &&
           options.sleepEnd == null
         ) {
-          const current = await context.createClient().device.getSettings({ deviceId })
+          const current = await sdkData(
+            getDeviceSettings({ deviceId }, { client, throwOnError: true }),
+          )
           currentSleep =
             current.sleep != null
               ? { start: current.sleep.start, end: current.sleep.end }
@@ -134,7 +149,9 @@ export function registerDeviceCommands(cli: CAC) {
           const result: DeviceSettingsResult = {
             type: 'device-settings',
             deviceId,
-            settings: await context.createClient().device.getSettings({ deviceId }),
+            settings: await sdkData(
+              getDeviceSettings({ deviceId }, { client, throwOnError: true }),
+            ),
           }
 
           outputResult(context, result)
@@ -143,7 +160,12 @@ export function registerDeviceCommands(cli: CAC) {
 
         const result: DeviceSettingsUpdateResult = {
           type: 'device-settings-update',
-          response: await context.createClient().device.updateSettings({ deviceId }, settings),
+          response: await sdkData(
+            updateDeviceSettings(
+              { deviceId, deviceSettingsRequest: settings },
+              { client, throwOnError: true },
+            ),
+          ),
         }
 
         outputResult(context, result)
@@ -159,8 +181,8 @@ export function registerDeviceCommands(cli: CAC) {
 function buildDeviceSettings(
   options: DeviceCommandOptions,
   currentSleep?: { start: string; end: string },
-): DeviceSettings | undefined {
-  const settings: DeviceSettings = {}
+): DeviceSettingsRequest | undefined {
+  const settings: DeviceSettingsRequest = {}
 
   if (options.alias != null) {
     if (options.alias.length > 100) {
@@ -189,7 +211,7 @@ function buildDeviceSettings(
   }
 
   if (options.timezone != null) {
-    settings.timezone = options.timezone
+    settings.timezone = options.timezone as DeviceSettingsRequest['timezone']
   }
 
   const powerMs = parseInterval('power-ms', options.powerMs)
