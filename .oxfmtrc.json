@@ -3,5 +3,11 @@
   "semi": false,
   "singleQuote": true,
   "arrowParens": "avoid",
-  "ignorePatterns": ["/.changeset/*.md", "/.changeset/pre.json", "/CHANGELOG.md", "pnpm-lock.yaml"]
+  "ignorePatterns": [
+    "/.changeset/*.md",
+    "/.changeset/pre/*.md",
+    "/.changeset/pre.json",
+    "/CHANGELOG.md",
+    "pnpm-lock.yaml"
+  ]
 }
