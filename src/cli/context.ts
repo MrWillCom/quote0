@@ -1,4 +1,4 @@
-import Quote0 from '../api'
+import { createClient, createConfig, type Client } from '../client/client'
 import config from '../config'
 import { CliError } from './errors'
 import type { GlobalCommandOptions } from './types'
@@ -6,7 +6,7 @@ import type { GlobalCommandOptions } from './types'
 export interface CliContext {
   readonly json: boolean
   readonly config: typeof config
-  createClient(): Quote0
+  createClient(): Client
 }
 
 export function createCliContext(options: GlobalCommandOptions = {}): CliContext {
@@ -22,7 +22,13 @@ export function createCliContext(options: GlobalCommandOptions = {}): CliContext
         })
       }
 
-      return new Quote0({ apiKey })
+      return createClient(
+        createConfig({
+          auth: apiKey,
+          baseUrl: 'https://dot.mindreset.tech',
+          throwOnError: true,
+        }),
+      )
     },
   }
 }

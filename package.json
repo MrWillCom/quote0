@@ -12,42 +12,55 @@
   },
   "license": "MIT",
   "author": "Mr. Will (https://github.com/MrWillCom)",
-  "repository": "MrWillCom/quote0",
+  "repository": "git+https://github.com/MrWillCom/quote0.git",
   "bin": {
-    "quote0": "dist/index.mjs"
+    "quote0": "dist/index.js"
   },
   "files": [
     "dist"
   ],
   "type": "module",
   "exports": {
-    ".": "./dist/api/index.mjs"
+    ".": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    }
   },
   "scripts": {
-    "build": "tsc --noEmit && tsdown",
+    "typecheck": "tsc --noEmit",
+    "build": "tsdown",
     "dev": "tsx src/index.tsx",
-    "start": "node dist/index.mjs",
+    "start": "node dist/index.js",
+    "openapi-ts": "openapi-ts",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "changeset": "changeset"
   },
   "dependencies": {
-    "@kud/ink-ui": "^0.14.1",
+    "@kud/ink-ui": "^0.29.0",
     "cac": "^7.0.0",
     "conf": "^15.1.0",
     "ink": "^7.1.1",
     "ink-text-input": "^6.0.0",
-    "react": "^19.2.8",
-    "yaml": "^2.9.0"
+    "react": "^19.3.0",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.5",
     "@changesets/cli": "^2.31.1",
-    "@types/node": "^26.2.0",
-    "@types/react": "^19.2.18",
-    "oxfmt": "^0.62.0",
-    "tsdown": "^0.22.14",
-    "tsx": "^4.23.12",
+    "@hey-api/openapi-ts": "0.99.0",
+    "@types/node": "^26.6.1",
+    "@types/react": "^19.3.0",
+    "oxfmt": "^0.68.0",
+    "publint": "^0.3.24",
+    "tsdown": "^0.23.0",
+    "tsx": "^4.23.13",
+    "turbo": "^2.10.13",
     "typescript": "^6.0.3"
   },
-  "packageManager": "pnpm@11.21.0+sha512.521705bce689924eac72f5a3587122f362689ef6571e55ba80076fd637c11132ecffada26fad4ea79c485bfddbfd3d5a2a5b05805a77e893de71ec8a6cca3bb1"
+  "packageManager": "pnpm@12.4.2+sha512.08adc6613180275c7c9edada39dcf08c9c61ad4e7eaf330a4f3461f102b0f907423454d117f98e72d47fef0616070644d7bffc973a6a57f5090a6d7c368b07c9"
 }

@@ -1,7 +1,9 @@
 import type { CAC } from 'cac'
+import { listTimezones } from '../../client'
 import { createCliContext } from '../context'
 import { CliError } from '../errors'
 import { outputResult } from '../output'
+import { sdkData } from '../sdk'
 import type { GlobalCommandOptions, TimezoneListResult } from '../types'
 
 export function registerTimezoneCommands(cli: CAC) {
@@ -28,7 +30,9 @@ export function registerTimezoneCommands(cli: CAC) {
 
         const result: TimezoneListResult = {
           type: 'timezone-list',
-          timezones: await context.createClient().timezone.list(),
+          timezones: await sdkData(
+            listTimezones({ client: context.createClient(), throwOnError: true }),
+          ),
         }
 
         outputResult(context, result)

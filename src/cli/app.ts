@@ -1,5 +1,6 @@
 import { cac } from 'cac'
 import { version } from '../../package.json'
+import { registerApiCommand } from './commands/api'
 import { registerAuthCommand } from './commands/auth'
 import { registerContentCommands } from './commands/content'
 import { registerDeviceCommands } from './commands/device'
@@ -14,6 +15,7 @@ export function buildCli() {
   registerDeviceCommands(cli)
   registerContentCommands(cli)
   registerTimezoneCommands(cli)
+  registerApiCommand(cli)
 
   cli.help()
   cli.version(version)

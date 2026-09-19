@@ -1,13 +1,22 @@
-name: Continuous Releases
-on: [push, pull_request]
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-
     steps:
       - uses: actions/checkout@v7
 
@@ -21,5 +30,6 @@ jobs:
           runtime: node@24
           cache: true
 
+      - run: pnpm run format:check
+      - run: pnpm exec turbo run typecheck
       - run: pnpm exec turbo run build
-      - run: pnpm dlx pkg-pr-new publish
