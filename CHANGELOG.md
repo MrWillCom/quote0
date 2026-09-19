@@ -1,5 +1,23 @@
 # quote0
 
+## 1.0.0-alpha.9
+
+### Major Changes
+
+- 18f20d6: Replace the class-based SDK (`Quote0`, `.device.list()`, `.content.pushText()`, etc.) with Hey API generated operations (`listDevices`, `displayText`, etc.) and `createClient` / `createConfig` from `quote0/client`, and rewire the CLI onto it.
+
+### Minor Changes
+
+- 18f20d6: Add `quote0 api` CLI command for making authenticated HTTP requests.
+
+### Patch Changes
+
+- bf69b7a: Migrate from Changesets v2 to v3.
+  
+  - Upgrade `@changesets/cli` from 2.x to 3.x and point the config schema at `@changesets/config` v4, with `format: oxfmt` for generated files.
+  - Move versioned alpha prerelease changesets to `.changeset/pre/`.
+  - Rewrite the Release workflow to `changesets/action@v2` with separate select-mode, version, pack, and OIDC publish jobs.
+
 ## 1.0.0-alpha.8
 
 ### Minor Changes
