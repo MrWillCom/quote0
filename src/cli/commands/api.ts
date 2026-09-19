@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises'
 import type { CAC } from 'cac'
+import type { Auth } from '../../client/client'
 import { createCliContext } from '../context'
 import { CliError, toCliError } from '../errors'
 import { sdkData } from '../sdk'
@@ -7,6 +8,10 @@ import type { GlobalCommandOptions } from '../types'
 
 const API_PREFIX = '/api/authV2/open'
 const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'] as const
+const API_SECURITY = [
+  { key: 'bearerAuth', scheme: 'bearer', type: 'http' },
+  { key: 'oauth2', scheme: 'bearer', type: 'http' },
+] as const satisfies ReadonlyArray<Auth>
 
 type HttpVerb = (typeof HTTP_METHODS)[number]
 
@@ -92,6 +97,7 @@ async function runApiCommand(endpoint: string | undefined, options: ApiCommandOp
       headers,
       method,
       ...(query != null && { query }),
+      security: API_SECURITY,
       throwOnError: true,
       url,
     }),
